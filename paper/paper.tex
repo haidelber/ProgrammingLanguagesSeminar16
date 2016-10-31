@@ -1,0 +1,92 @@
+
+% Template for Seminar Papers
+% Research Group for Parallel Computing
+% Vienna University of Technology
+
+% Copyright (C) 2015-2016
+% Sascha Hunold <hunold@par.tuwien.ac.at>
+% version 1.0.2
+
+\documentclass[DIV12,a4paper]{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+%\usepackage{fixltx2e} 
+\usepackage{amsmath}  
+\usepackage{amssymb} 
+\usepackage{microtype} 
+\usepackage{enumitem} 
+\usepackage{booktabs} 
+\usepackage{nag}       % Issues warnings when best practices in writing LaTeX documents are violated.
+\usepackage{hyperref}
+\usepackage{xspace}
+\usepackage{graphicx}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ONLY CHANGE THE FOLLOWING MACROS
+
+% your name
+\newcommand{\studname}{Martina Musterfrau}
+
+% your matrikel
+\newcommand{\studmatrikel}{0123454321}
+
+% name of seminar
+\newcommand{\seminarname}{Performance Modeling in Parallel Computing / HPC}
+
+% title of your seminar paper
+\newcommand{\seminartitle}{Simulation of MPI Applications}
+
+% date when you hand in seminar paper
+\newcommand{\spdate}{24. April 2016}
+
+% uncomment your choice
+\newcommand{\sptopic}{Seminar aus Programmiersprachen}
+%\newcommand{\sptopic}{Seminar aus Algorithmik}
+%\newcommand{\sptopic}{Seminar aus Software Engineering}
+%\newcommand{\sptopic}{Seminar aus Theoretischer Informatik}
+
+% who is supervising
+\newcommand{\spbetreuer}{Dr. Sascha Hunold}
+
+% YOU SHOULD NOT NEED TO CHANGE THE REMAINING FILE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\graphicspath{{graphics/}}
+
+\begin{document}
+
+\input{titlepage}
+
+\cleardoublepage
+
+
+\section*{Main Literature Sources}
+
+The following seminar report is based on the following research articles:
+\input{sources}
+
+\clearpage
+
+\input{statement}
+
+\clearpage
+
+\tableofcontents
+
+\cleardoublepage
+
+\pagestyle{plain}
+
+\setcounter{page}{1}
+
+\input{main}
+
+\cleardoublepage
+% Add a bibliography
+\bibliographystyle{plain}
+\bibliography{myreferences}
+
+\end{document}
