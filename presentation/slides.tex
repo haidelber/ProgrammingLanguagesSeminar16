@@ -1,0 +1,145 @@
+\documentclass{beamer}
+
+\usetheme{Darmstadt}
+\usecolortheme{rose}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage[autostyle]{csquotes}
+
+\usepackage {tikz}
+\usetikzlibrary {positioning}
+
+\title{The Adaptive Priority Queue with Elimination and Combining}
+\subtitle{Irina Calciu, Hammurabi Mendes, and Maurice Herlihy}
+\author{Stefan Haider\\ \scriptsize\href{mailto:stefan.haider@student.tuwien.ac.at}{stefan.haider@student.tuwien.ac.at}}
+\institute{184.755 Seminar aus Programmiersprachen}
+\date{\today}
+
+\begin{document}
+		
+	\begin{frame}[plain]
+		\titlepage
+	\end{frame}
+	
+	\section{Graph theory}
+	\subsection{What is a graph?}
+	\begin{frame}
+		\frametitle{What is a graph?}
+		\framesubtitle{Just a short recap...}
+		\begin{block}{Definition}
+			\begin{itemize}
+				\item A graph is an ordered pair $G=(V,E)$
+				\item $V$ is a set of vertices/nodes
+				\item $E$ is a set of (un)directed (weighted) edges/arcs
+				\item each edge is a two element subset of $V$
+			\end{itemize}
+		\end{block}
+	\end{frame}
+	
+	\subsection{Hamiltonian path/cycle/graph}
+	\begin{frame}
+		\frametitle{Hamiltonian path/cycle/graph}
+		\framesubtitle{Some further definitions}
+		\begin{block}{Definition}
+			\begin{description}
+				\item[Path] A path is a trail in which all vertices (except possibly the first and last) are distinct.
+				\item[Hamiltonian] A Hamiltonian path is a path that visits each vertex exactly once.
+				\item[Ham. cycle] A cycle that visits each vertex exactly once (except for the start- and end-vertex)
+			\end{description}
+		\end{block}		
+	\end{frame}
+	
+	\section{Approach}
+	\begin{frame}
+		\frametitle{Approach}
+		\tableofcontents[
+		sections={2},
+		subsectionstyle=show/show/hide
+		]
+	\end{frame}
+	
+	\subsection{Graph notation}
+	\begin{frame}
+		\frametitle{Graph notation in Prolog}
+		
+		\begin{block}{Undirected graph}
+		\end{block}
+		\begin{block}{Directed graph}
+		\end{block}
+	\end{frame}
+	
+	\subsection{Finding paths in directed graphs}
+	\begin{frame}
+		\frametitle{Path finding}
+		
+	\end{frame}
+	
+	\subsection{Finding Hamiltonian paths}
+	\begin{frame}
+		\frametitle{Hamiltonian path}
+		\begin{block}{Find Hamiltonian paths in directed graphs}
+		\end{block}
+	\end{frame}
+	
+	\subsection{Finding Hamiltonian cycles}
+	\begin{frame}
+		\frametitle{Hamiltonian cycle}
+		\begin{block}{Find Hamiltonian cycles in directed graphs}
+		\end{block}
+	\end{frame}
+	
+	\subsection{Extension for undirected graphs}
+	\begin{frame}
+		\frametitle{Handling undirected graphs}
+		\begin{block}{Naive approach}
+			\begin{itemize}
+				\item transformation into a directed graph by doubling edges
+				\item inefficient due to larger search space
+				\item prolog process ran out of memory (8 GB)
+			\end{itemize}
+		\end{block}
+		\begin{block}{Efficient approach}
+			\begin{itemize}
+				\item check for edges in both directions 
+			\end{itemize}
+		\end{block}
+	\end{frame}
+	
+	\section{Examples}
+	\subsection{Directed graph}
+	\begin{frame}
+		\frametitle{Directed graph}
+		\begin{columns}
+			\begin{column}{0.3 \linewidth}
+				\begin{figure}
+				\end{figure}
+			\end{column}
+			\begin{column}{0.7 \linewidth}
+				\begin{example}
+				\end{example}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\subsection{Undirected graph}
+	\begin{frame}
+		\frametitle{Undirected graph}
+		\begin{columns}
+			\begin{column}{0.3 \linewidth}
+				\begin{figure}
+				\end{figure}
+			\end{column}
+			\begin{column}{0.7 \linewidth}
+				\begin{example}
+				\end{example}
+			\end{column}
+		\end{columns}
+	\end{frame}
+	
+	\section{Questions}
+	\begin{frame}
+		\frametitle{Questions?}
+	\end{frame}	
+\end{document}
