@@ -1,0 +1,77 @@
+
+@inproceedings{calciu_adaptive_2014,
+	title = {The {Adaptive} {Priority} {Queue} with {Elimination} and {Combining}},
+	copyright = {©2014 Springer-Verlag Berlin Heidelberg},
+	abstract = {Priority queues are fundamental abstract data structures, often used to manage limited resources in parallel programming. Several proposed parallel priority queue implementations are based on skiplists, harnessing the potential for parallelism of the add() operations. In addition, methods such as Flat Combining have been proposed to reduce contention, batching together multiple operations to be executed by a single thread. While this technique can decrease lock-switching overhead and the number of pointer changes required by the removeMin() operations in the priority queue, it can also create a sequential bottleneck and limit parallelism, especially for non-conflicting add() operations. In this paper, we describe a novel priority queue design, harnessing the scalability of parallel insertions in conjunction with the efficiency of batched removals. Moreover, we present a new elimination algorithm suitable for a priority queue, which further increases concurrency on balanced workloads with similar numbers of add() and removeMin() operations. We implement and evaluate our design using a variety of techniques including locking, atomic operations, hardware transactional memory, as well as employing adaptive heuristics given the workload.},
+	language = {en},
+	urldate = {2017-01-02},
+	booktitle = {Distributed {Computing} ({DISC})},
+	author = {Calciu, Irina and Mendes, Hammurabi and Herlihy, Maurice},
+	month = oct,
+	year = {2014},
+	note = {DOI: 10.1007/978-3-662-45174-8\_28},
+	keywords = {Algorithm Analysis and Problem Complexity, Computer Communication Networks, Data Structures, Cryptology and Information Theory},
+	pages = {406--420},
+	file = {arXiv\:1408.1021 PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\GAC2FXAJ\\Calciu et al. - 2014 - The Adaptive Priority Queue with Elimination and C.pdf:application/pdf;Snapshot:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\8MSN75ID\\978-3-662-45174-8_28.html:text/html}
+}
+
+@inproceedings{bar-nissan_dynamic_2011,
+	title = {A {Dynamic} {Elimination}-combining {Stack} {Algorithm}},
+	url = {http://dx.doi.org/10.1007/978-3-642-25873-2_37},
+	doi = {10.1007/978-3-642-25873-2_37},
+	abstract = {Two key synchronization paradigms for the construction of scalable concurrent data-structures are software combining and elimination. Elimination-based concurrent data-structures allow operations with reverse semantics (such as push and pop stack operations) to "collide" and exchange values without having to access a central location. Software combining, on the other hand, is effective when colliding operations have identical semantics: when a pair of threads performing operations with identical semantics collide, the task of performing the combined set of operations is delegated to one of the threads and the other thread waits for its operation(s) to be performed. Applying this mechanism iteratively can reduce memory contention and increase throughput. The most highly scalable prior concurrent stack algorithm is the elimination-backoff stack [5]. The elimination-backoff stack provides high parallelism for symmetric workloads in which the numbers of push and pop operations are roughly equal, but its performance deteriorates when workloads are asymmetric. We present DECS, a novel Dynamic Elimination-Combining Stack algorithm, that scales well for all workload types. While maintaining the simplicity and low-overhead of the elimination-bakcoff stack, DECS manages to benefit from collisions of both identical- and reverse-semantics operations. Our empirical evaluation shows that DECS scales significantly better than both blocking and non-blocking best prior stack algorithms.},
+	urldate = {2017-01-02},
+	booktitle = {Proceedings of the 15th {International} {Conference} on {Principles} of {Distributed} {Systems}},
+	publisher = {Springer-Verlag},
+	author = {Bar-Nissan, Gal and Hendler, Danny and Suissa, Adi},
+	year = {2011},
+	pages = {544--561},
+	file = {arXiv\:1106.6304 PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\WBGD43U4\\Bar-Nissan et al. - 2011 - A Dynamic Elimination-Combining Stack Algorithm.pdf:application/pdf}
+}
+
+@inproceedings{hendler_flat_2010,
+	series = {{SPAA} '10},
+	title = {Flat {Combining} and the {Synchronization}-parallelism {Tradeoff}},
+	isbn = {978-1-4503-0079-7},
+	url = {http://doi.acm.org/10.1145/1810479.1810540},
+	doi = {10.1145/1810479.1810540},
+	abstract = {Traditional data structure designs, whether lock-based or lock-free, provide parallelism via fine grained synchronization among threads. We introduce a new synchronization paradigm based on coarse locking, which we call flat combining. The cost of synchronization in flat combining is so low, that having a single thread holding a lock perform the combined access requests of all others, delivers, up to a certain non-negligible concurrency level, better performance than the most effective parallel finely synchronized implementations. We use flat-combining to devise, among other structures, new linearizable stack, queue, and priority queue algorithms that greatly outperform all prior algorithms.},
+	urldate = {2017-01-04},
+	booktitle = {Proceedings of the {Twenty}-second {Annual} {ACM} {Symposium} on {Parallelism} in {Algorithms} and {Architectures}},
+	publisher = {ACM},
+	author = {Hendler, Danny and Incze, Itai and Shavit, Nir and Tzafrir, Moran},
+	year = {2010},
+	keywords = {concurrent data-structures, multiprocessors, synchronization},
+	pages = {355--364},
+	file = {ACM Full Text PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\XUI8P7WT\\Hendler et al. - 2010 - Flat Combining and the Synchronization-parallelism.pdf:application/pdf}
+}
+
+@inproceedings{sundell_fast_2003,
+	series = {{IPDPS} '03},
+	title = {Fast and {Lock}-{Free} {Concurrent} {Priority} {Queues} for {Multi}-{Thread} {Systems}},
+	isbn = {978-0-7695-1926-5},
+	url = {http://dl.acm.org/citation.cfm?id=838237.838462},
+	abstract = {We present an efficient and practical lock-free implementation of a concurrent priority queue that is suitable for both fully concurrent (large multi-processor) systems as well as pre-emptive (multi-process) systems. Many algorithms for concurrent priority queues are based on mutual exclusion. However, mutual exclusion causes blocking which has several drawbacks anddegrades the system's overall performance. Non-blocking algorithms avoid blocking, and are either lock-free or wait-free. Previously known non-blocking algorithms of priority queues did not perform well in practice because of their complexity, and they are often based on non-available atomic synchronization primitives. Our algorithm is based on the randomizedsequential list structure called Skiplist, and a real-time extension of our algorithm is also described. In our performance evaluation we compare our algorithm with some of the most efficient implementations of priority queues known. The experimental results clearly show that our lock-free implementation outperforms the other lock-based implementations in all cases for 3 threads and more, both on fully concurrent as well as on pre-emptive systems.},
+	urldate = {2017-01-04},
+	booktitle = {Proceedings of the 17th {International} {Symposium} on {Parallel} and {Distributed} {Processing}},
+	publisher = {IEEE Computer Society},
+	author = {Sundell, Hakan and Tsigas, Philippas},
+	year = {2003},
+	keywords = {Lock-Free, Multi-Thread, Non-Blocking, Parallel, Priority Queue, Shared Memory},
+	pages = {84.2--},
+	file = {SunT03_PQueue_TR.pdf:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\ZX66A7VF\\SunT03_PQueue_TR.pdf:application/pdf}
+}
+
+@inproceedings{lotan_skiplist-based_2000,
+	series = {{IPDPS} '00},
+	title = {Skiplist-{Based} {Concurrent} {Priority} {Queues}},
+	isbn = {978-0-7695-0574-9},
+	url = {http://dl.acm.org/citation.cfm?id=846234.849296},
+	urldate = {2017-01-04},
+	booktitle = {Proceedings of the 14th {International} {Symposium} on {Parallel} and {Distributed} {Processing}},
+	publisher = {IEEE Computer Society},
+	author = {Lotan, Itay and Shavit, Nir},
+	year = {2000},
+	pages = {263--268},
+	file = {Priority_Queues.pdf:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\G82DM3GJ\\Priority_Queues.pdf:application/pdf}
+}
