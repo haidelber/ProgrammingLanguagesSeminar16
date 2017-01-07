@@ -1,0 +1,79 @@
+\documentclass{article}
+
+% Reverse the commented/uncommented lines below to switch
+% between pdflatex and xelatex
+%
+\usepackage[utf8]{inputenc}
+%\usepackage{fontspec}
+%usepackage{xunicode}
+
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{xy}
+\usepackage{url}
+\usepackage{afterpage}
+\usepackage{fullpage}
+
+\newcommand{\set}[1]{\{#1\}} 
+\newcommand{\setof}[2]{\{\,{#1}|~{#2}\,\}}
+\newcommand{\compl}[1]{\overline{#1}}
+
+\newcommand{\C}{\mathbb{C}} 
+\newcommand{\N}{\mathbb{N}} 
+\newcommand{\Q}{\mathbb{Q}} 
+\newcommand{\R}{\mathbb{R}} 
+\newcommand{\Z}{\mathbb{Z}}
+
+\newcommand{\Continue}{\textbf{continue}}
+\newcommand{\attr}{\ensuremath{\leftarrow} }
+\newcommand{\nullvalue}{\ensuremath{\bot}}
+\newcommand{\maxLvl}{\ensuremath{\mathrm{MaxLvl}}}
+\newcommand{\maxInt}{\ensuremath{\mathrm{MaxInt}}}
+\newcommand{\minInt}{\ensuremath{\mathrm{MinInt}}}
+
+\begin{document}
+
+\title{The Adaptive Priority Queue with Elimination and Combining}
+\author{Irina Calciu, Hammurabi Mendes, and Maurice Herlihy\\
+Department of Computer Science\\
+Brown University\\
+115 Waterman St., 4th floor\\
+Providence RI -- USA\\
+\texttt{\{irina,hmendes,mph\}@cs.brown.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+Priority queues are fundamental abstract data structures, often used to manage limited resources in parallel programming. Several proposed parallel priority queue implementations are based on skiplists, harnessing the potential for parallelism of the \texttt{add()} operations. In addition, methods such as Flat Combining have been proposed to reduce contention by batching together multiple operations to be executed by a single thread. While this technique can decrease lock-switching overhead and the number of pointer changes required by the \texttt{removeMin()} operations in the priority queue, it can also create a sequential bottleneck and limit parallelism, especially for non-conflicting \texttt{add()} operations.
+
+In this paper, we describe a novel priority queue design, harnessing the scalability of parallel insertions in conjunction with the efficiency of batched removals. Moreover, we present a new elimination algorithm suitable for a priority queue, which further increases concurrency on balanced workloads with similar numbers of \texttt{add()} and \texttt{removeMin()} operations. We implement and evaluate our design using a variety of techniques including locking, atomic operations, hardware transactional memory, as well as employing adaptive heuristics given the workload.
+\end{abstract}
+
+\input{introduction}
+\input{design}
+\input{linearizability}
+\input{evaluation}
+\input{eval_move}
+
+\input{transactions_intro}
+\input{transactions_skiplist}
+\input{transactions_eval_aborted}
+\input{conclusion}
+
+\bibliography{pqe_disc_14}
+\bibliographystyle{plain}
+
+\newpage
+\appendix
+
+\input{app_algorithms_skiplist}
+
+\input{app_algorithms_elimcomb}
+
+\input{app_transactions_delegation}
+
+\end{document}

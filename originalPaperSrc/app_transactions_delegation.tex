@@ -1,0 +1,50 @@
+\section{Implementing Combining and Elimination with Transactions}
+\label{App-Transactions-Delegation}
+
+In this section, we describe our experience using Intel TSX to simplify combining and elimination. Adapting the elimination algorithm to use transactions was straightforward, by just replacing the pessimistic synchronization with transactions. We note that a unique stamp as described in Section~\ref{Sec-Design-EliminationCombining} is not necessary for linearizability of elimination if the operations are performed inside hardware transactions. If a thread finds a matching operation and ensures in a transaction that the value is smaller than the minimum, then elimination is safe. If a change in the matching operation had occurred, the transaction would have aborted. We retry each transaction $N$ times (e.g. $N=3$ in our implementation). If a thread's transaction is aborted too many times during elimination, the thread moves on to other slots without retrying the failed slot in a fallback path. However, if the transaction fails while trying to insert an \texttt{PQ::add()} or \texttt{PQ::removeMin()} operation in an empty slot to be collected by the server thread, the original pessimistic algorithm is used as a software fallback path in order to guarantee forward progress. Unfortunately, the unique stamp needs to be used to ensure linearizability of the operations executed on the fallback path. 
+
+Using transactions in the server thread implementation required including \texttt{SL::addSeq()} and \texttt{SL::removeSeq()} inside a transaction, which in turn caused too many aborts. Therefore, we designed an alternative combining algorithm that executes these operations outside the critical section. The complete algorithm is presented in Algorithm~\ref{Alg-Execute-OPT}. It is based on the observation that, as long as there is a sequential part in the skiplist, the \texttt{SL::removeSeq()} and the \texttt{SL::addSeq()} operations can be executed lazily. The server can use the skiplist's \emph{minValue} to return a value to a remove request and only execute the sequential operation after, without the remove thread waiting for it. Note that the skiplist's \texttt{minValue} could, in the meantime, return a value that is outdated. However, this value is always smaller or equal to the actual minimum in the skiplist, because it can only lag behind one sequential remove. This function is used by the \texttt{PQ::add()} operations to determine if they can eliminate or not. Therefore, estimating a minimum smaller than the actual minimum can affect performance, but will not impact correctness of our algorithm. Moreover, the server performs the \texttt{PQ::removeMin()} operation immediately after writing the minimum, thus cleaning up the sequential part and updating the minimum estimate. The \texttt{PQ::add()} case is similar too. If there is a sequential part to the skiplist, the server can update the skiplist lazily, after it releases the waiting thread. There is one difference. If the value inserted is smaller than \emph{minValue}, then this needs to be updated before releasing the waiting thread.
+
+Using these changes in the combining algorithm allowed a straightforward implementation using hardware transactions. However, our experiments indicated that certain particularities of the best-effort HTM design make it unsuitable for this scenario. First of all, because of its  best-effort nature, a fallback is necessary in order to make progress. Therefore, the algorithm might be simplified on the common case, but it is still as complex as the fallback. Moreover, changes are often needed to adapt algorithms for an implementation using hardware transactions. Because these changes involve decreasing the sizes of the critical sections and decreasing the number of potential conflicts, these changes could be beneficial to the original algorithm too. Finally, it seems that communications paradigms, such as elimination and combining, are best implemented using pessimistic methods. Intel TSX has no means of implementing non-transactional operations inside transactions (also called escape actions) and no polite spinning mechanism to allow a thread to wait for a change that is going to be performed in a transaction. The spinning thread could often abort the thread that it is waiting for. We used the PAUSE instruction in the spinning thread to alleviate this issue, but better hardware support for implementing communication paradigms using hardware transactions is necessary. For our elimination and combining algorithms, we concluded that pessimistic synchronization works better. 
+
+\begin{algorithm}[!htb]
+\caption{Server::execute()}
+\label{Alg-Execute-OPT}
+\begin{algorithmic}[1]
+
+\While{$\mathbf{true}$}
+  \For{$i$: 1 $\rightarrow$ ELIM\_SIZE}
+	\State (value, stamp) \attr elim[i]
+	\If{value = REMREQ}
+	    \If{skiplist.currSeq = \nullvalue}
+		\State skiplist.moveHead()
+	    \EndIf
+	    \If{skiplist.currSeq $\ne$ \nullvalue}
+		\If{CAS(elim[i], (value, stamp), (skiplist.minValue, 0))}
+		  \State skiplist.removeSeq()
+		\EndIf
+	    \Else
+	      \If{CAS(elim[i], (value, stamp), (INPROG, 0))}
+		  \State min \attr skiplist.removeSeq(); elim[i] \attr (min, 0)
+	      \EndIf
+	    \EndIf
+	\EndIf
+	\If {IsValue(value) \textbf{and} (stamp $> 0$)}
+	    \If{skiplist.currSeq $\ne$ \nullvalue}
+		\If{CAS(elim[i], (value, stamp), (INPROG, 0))}
+		  \If{value $<$ skiplist.minValue} \label{line:minValue}
+		    \State skiplist.minValue \attr value
+		  \EndIf
+		  \State elim[i] \attr (TAKEN, 0); skiplist.addSeq(value)
+		\EndIf
+	    \Else
+	      \If{CAS(elim[i], (value, stamp), (INPROG, 0))}
+		\State skiplist.addSeq(value); elim[i] \attr (TAKEN, 0)
+	      \EndIf
+	    \EndIf
+
+	\EndIf
+  \EndFor
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
