@@ -21,9 +21,14 @@
 \usepackage{hyperref}
 \usepackage{xspace}
 \usepackage{graphicx}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%CUSTOM PACKAGES
 
-%custom packages
 \usepackage[backend=biber,style=ieee]{biblatex}
+\usepackage{listings}
+\usepackage{xargs}
+\usepackage[pdftex,dvipsnames]{xcolor}
+\usepackage[colorinlistoftodos,prependcaption]{todonotes}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ONLY CHANGE THE FOLLOWING MACROS
@@ -51,30 +56,29 @@
 
 % who is supervising
 \newcommand{\spbetreuer}{Univ.Prof. Dr. Jesper Larsson Träff}
-
-% YOU SHOULD NOT NEED TO CHANGE THE REMAINING FILE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CUSTOM CONFIGURATION
 
-%custom configuration
 \addbibresource{progsem.bib}
-
+\setcounter{tocdepth}{3}
 \graphicspath{{graphics/}}
+
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+\newcommandx{\improve}[2][1=]{\todo[#1]{#2}}
 
 \begin{document}
 
-\input{chapters/titlepage}
+\input{chapters/_titlepage}
 
 \cleardoublepage
 
-
-\section*{Main Literature Sources}
-
-The following seminar report is based on the following research articles:
-\input{chapters/sources}
+\input{chapters/_sources}
 
 \clearpage
 
-\input{chapters/statement}
+\input{chapters/_statement}
 
 \clearpage
 
@@ -86,11 +90,13 @@ The following seminar report is based on the following research articles:
 
 \setcounter{page}{1}
 
-\input{chapters/main}
+\input{chapters/_root}
 
 \cleardoublepage
-% Add a bibliography
-%\bibliographystyle{plain}
+
 \printbibliography
+
+\listoftodos[TODO and other issues]
+\change{REMOVE WHEN DONE}
 
 \end{document}
