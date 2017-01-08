@@ -1,0 +1,133 @@
+\section{Algorithms for Elimination and Combining}
+\label{App-Algorithms-EliminationCombining}
+
+In this section, we present the algorithms for the elimination and combining strategies for our priority queue, described in Section~\ref{Sec-Design-EliminationCombining}. The priority queue removal is shown in Alg.~\ref{Alg-removeMin}.
+
+% \begin{algorithm}[htb]
+% \caption{PQ::removeMin()}
+% \label{Alg-removeMin}
+% \begin{algorithmic}[1]
+% \While{$\mathbf{true}$}
+% 	\State pos \attr $(id + 1) \% $ ELIM\_SIZE; (value, stamp) \attr elim[pos]
+% 	\If {IsValue(value) \textbf{and} (stamp $> 0$) \textbf{and} (value $\le$ skiplist.minValue))}
+% 	    \If{CAS(elim[pos], (value, stamp), (TAKEN, 0))}
+% 		\State \Return value
+% 	    \EndIf
+% 	\EndIf
+% 	\If {value = EMPTY}
+% 	    \If{CAS(elim[pos], (value, stamp), (REMREQ, uniqueStamp()))}
+% 		\Repeat
+% 		  \State (value, stamp) \attr elim[pos]
+% 		\Until{value $\ne$ REMREQ \textbf{and} value $\ne$ INPROG}
+% 		\State elim[pos] \attr (EMPTY, 0); \Return value
+% 	    \EndIf    
+% 	\EndIf
+% 	\State inc(pos)
+% \EndWhile
+% \end{algorithmic}
+% \end{algorithm}
+
+
+
+
+
+
+% \begin{algorithm}[htb]
+% \caption{PQ::add(inValue)}
+% \label{Alg-add}
+% \begin{algorithmic}[1]
+% \If{skiplist.addPar(inValue)}
+%     \State \Return $\mathbf{true}$
+% \EndIf
+% 
+% \While{$\mathbf{true}$}
+% 	\State (value, stamp) \attr elim[pos]
+% 	\If {value = REMREQ \textbf{and} (inValue $\le$ skiplist.minValue))}
+% 	    \If{CAS(elim[pos], (value, stamp), (inValue, 0))}
+% 		\State \Return $\mathbf{true}$
+% 	    \EndIf
+% 	\EndIf
+% 	\If {value = EMPTY}
+% 	    \If{CAS(elim[pos], (value, stamp), (inValue, uniqueStamp()))}
+% 		\Repeat
+% 		  \State (value, stamp) \attr elim[pos]
+% 		\Until{value = TAKEN}
+% 		\State elim[pos] \attr (EMPTY, 0); \Return $\mathbf{true}$
+% 	    \EndIf    
+% 	\EndIf
+% 	\State inc(pos)
+% \EndWhile
+% \end{algorithmic}
+% \end{algorithm}
+
+The priority queue insertion algorithm is shown in Alg.~\ref{Alg-add}. If the value being inserted is not suitable for the parallel part (\texttt{PQ::addPar()} returns false), the request is posted in the elimination array, until eliminated with a suitable \texttt{PQ::removeMin()} or consumed by the server thread. Details are discussed in Sec.~\ref{Sec-Design-EliminationCombining}. 
+
+\begin{algorithm}[!htb]
+\caption{PQ::add(inValue)}
+\label{Alg-add}
+\begin{algorithmic}[1]
+\If{inValue $\le$ skiplist.minValue}
+  \State rep \attr MAX\_ELIM\_MIN
+\Else 
+  \If{skiplist.addPar(inValue)}
+    \State \Return $\mathbf{true}$
+  \EndIf
+  \State rep = MAX\_ELIM
+\EndIf
+
+\While{rep $> 0$}
+	\State pos \attr $(id + 1) \% $ ELIM\_SIZE; (value, stamp) \attr elim[pos]
+	\If {value = REMREQ \textbf{and} (inValue $\le$ skiplist.minValue))}
+	    \If{CAS(elim[pos], (value, stamp), (inValue, 0))}
+		\State \Return $\mathbf{true}$
+	    \EndIf
+	\EndIf
+	\State rep \attr rep $- 1$; inc(pos)
+\EndWhile
+
+\If{skiplist.addPar(inValue)}
+    \State \Return $\mathbf{true}$
+\EndIf
+
+\While{$\mathbf{true}$}
+	\State (value, stamp) \attr elim[pos]
+	\If {value = REMREQ \textbf{and} (inValue $\le$ skiplist.minValue))}
+	    \If{CAS(elim[pos], (value, stamp), (inValue, 0))}
+		\State \Return $\mathbf{true}$
+	    \EndIf
+	\EndIf
+	\If {value = EMPTY}
+	    \If{CAS(elim[pos], (value, stamp), (inValue, uniqueStamp()))}
+		\Repeat
+		  \State (value, stamp) \attr elim[pos]
+		\Until{value = TAKEN}
+		\State elim[pos] \attr (EMPTY, 0); \Return $\mathbf{true}$
+	    \EndIf    
+	\EndIf
+	\State inc(pos)
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+% The server thread executes Alg.~\ref{Alg-Execute}, shown below. The algorithm implements the combining paradigm described in Sec.~\ref{Sec-Design-EliminationCombining}.
+% \begin{algorithm}[htb]
+% \caption{Server::execute()}
+% \label{Alg-Execute}
+% \begin{algorithmic}[1]
+% \While{$\mathbf{true}$}
+%   \For{$i$: 1 $\rightarrow$ ELIM\_SIZE}
+% 	\State (value, stamp) \attr elim[i]
+% 	\If{value = REMREQ}
+% 	    \If{CAS(elim[i], (value, stamp), (INPROG, 0))}
+% 		\State min \attr skiplist.removeSeq(); elim[i] \attr (min, 0)
+% 	    \EndIf
+% 	\EndIf
+% 	\If {IsValue(value) \textbf{and} (stamp $> 0$)}
+% 	    \If{CAS(elim[i], (value, stamp), (INPROG, 0))}
+% 		\State skiplist.addSeq(value); elim[i] \attr (TAKEN, 0)
+% 	    \EndIf    
+% 	\EndIf
+%   \EndFor
+% \EndWhile
+% \end{algorithmic}
+% \end{algorithm}

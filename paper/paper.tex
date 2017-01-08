@@ -25,7 +25,8 @@
 %CUSTOM PACKAGES
 
 \usepackage[backend=biber,style=ieee]{biblatex}
-\usepackage{listings}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{xargs}
 \usepackage[pdftex,dvipsnames]{xcolor}
 \usepackage[colorinlistoftodos,prependcaption]{todonotes}
@@ -98,5 +99,10 @@
 
 \listoftodos[TODO and other issues]
 \change{REMOVE WHEN DONE}
+
+\newpage
+\appendix
+
+\input{chapters/_appendix}
 
 \end{document}

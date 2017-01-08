@@ -1,0 +1,174 @@
+\section{Algorithms for the Concurrent Skiplist}
+\label{App-Algorithms-ConcurrentSkiplist}
+
+In this section, we present the algorithms for the concurrent skiplist described in Sec.~\ref{Sec-Design-ConcurrentSkiplist}. The skiplist contains a Single-Writer-Multi-Readers lock with writer preference, called simply \texttt{lock}. In terms of notation, \texttt{lock.acquireR()} acquires the lock for reads, and \texttt{lock.acquireW()} acquires the lock for writes. The \texttt{SL::removeSeq()} skiplist procedure is described in Alg.~\ref{Alg-RemoveSeq}.
+
+\begin{algorithm}[!htb]
+\caption{SL::removeSeq()}
+\label{Alg-RemoveSeq}
+\begin{algorithmic}[1]
+\If{minValue $=$ \maxInt}
+	\State \Return \maxInt
+\EndIf
+\If{currSeq $=$ \nullvalue}
+	\State moveHead()
+\EndIf
+\State key \attr currSeq.key
+\State currSeq.counter \attr currSeq.counter - 1
+\If{currSeq.counter $= 0$}
+	\While{currSeq $\ne$ lastSeq}
+		\State currSeq \attr currSeq.next[0]
+		\If{currSeq.counter $> 0$}
+			\State minValue = currSeq.key
+			\State \Return key
+		\EndIf
+	\EndWhile
+	\State moveHead()
+\EndIf
+\State \Return key
+\end{algorithmic}
+\end{algorithm}
+
+The variable \texttt{lock.timestmap} contains the timestamp associated with the lock (and hence with the head-moving operations). Algorithm~\ref{Alg-CleanFind} returns a pair of elements $(b,r)$: $b$ is a bucket found using the skiplist \texttt{SL::find()} operation, and $r$ is a boolean defined as follows. If a head-moving operation happened anywhere between Lines~\ref{algFLT:checkstamp1} and~\ref{algFLT:checkstamp2}, the timestamp moved and $r$ will be false.
+
+\begin{algorithm}[!htb]
+\caption{cleanFind($v$, preds, succs)}
+\label{Alg-CleanFind}
+\begin{algorithmic}[1]
+\State $t$ \attr lock.timestamp \label{algFLT:checkstamp1}
+\State $b$ \attr find(headPar, $v$, preds, succs)
+\State lock.acquireR()
+\If{$t$ $<$ lock.timestamp} \label{algFLT:checkstamp2}
+	\State lock.release()
+	\State \Return $(\nullvalue, \mathbf{false})$
+\EndIf
+\State \Return $(b, \mathbf{true})$
+\end{algorithmic}
+\end{algorithm}
+
+The \texttt{SL::addPar()} skiplist procedure is described in Alg.~\ref{Alg-AddPar}. It uses the clean find protocol above. It performs a clean find, followed by mutable operations (either increasing a counter or inserting a bucket), executed with \texttt{lock} acquired for reading.
+
+\begin{algorithm}[!htb]
+\caption{SL::addPar($v$)}
+\label{Alg-AddPar}
+\begin{algorithmic}[1]
+\If{$v$ $\le$ lastSeq.key}
+	\State \Return \textbf{false}
+\EndIf
+\State $(b,r)$ \attr cleanFind($v$, preds, succs) \label{algAddPar:find}
+\If{$r$ = \textbf{false}}
+	\State \textbf{restart} at line~\ref{algAddPar:find}
+\EndIf
+\If{$b \ne \nullvalue$} \label{algAddPar:incblock}
+	\State Atomically increment $b$.counter
+	\State lock.release()
+	\State \Return \textbf{true}
+\EndIf
+\State $b$ \attr newNode($v$)
+\For{$i$: 1 $\rightarrow$ $b$.topLevel}
+	\State $b$.next[i] \attr succs[i]
+\EndFor
+\If{\textbf{not} CAS(preds[0].next[0]: succs[0] $\rightarrow$ $b$)}
+	\State lock.release()
+	\State \textbf{restart} at line~\ref{algAddPar:find}
+\EndIf
+\Repeat
+	\State $m$ \attr minValue
+\Until{$m \le v$ \textbf{or} CAS(minValue: $m \rightarrow v$)}
+\For{$i$: 1 $\rightarrow$ $b$.topLevel}
+	\State $b$.next[i] \attr succs[i]
+	\If{CAS(preds[i].next[i]: succs[i] $\rightarrow$ $b$)}
+		\State \Continue
+	\EndIf
+	\State lock.release()
+	\Repeat
+		\State $(b,r)$ \attr cleanFind($v$, preds, succs)
+	\Until{$r = \mathbf{true}$}
+	\If{$b = \nullvalue$}
+		\State lock.release()
+		\State \Return \textbf{true}
+	\EndIf
+\EndFor
+\State \Return \textbf{true}
+\end{algorithmic}
+\end{algorithm}
+
+The \texttt{SL::moveHead()} skiplist procedure is described in Alg.~\ref{Alg-MoveHead}. Line~\ref{algMH:copyHead} creates the sequential part starting from where the parallel part used to be, and the operations starting at Line~\ref{algMH:unlink} separate the skiplist in two parts. Note how \texttt{SL::find()} is used to locate the pointers that will change in order to separate the skiplist.
+
+\begin{algorithm}[!htb]
+\caption{SL::moveHead()}
+\label{Alg-MoveHead}
+\begin{algorithmic}[1]
+\State $n$ is determined dynamically (see text)
+\State lock.acquireW()
+\State currSeq \attr \nullvalue
+
+\State pred \attr headPar
+\State curr \attr headPar.next[0]
+\State $i = 0$
+\While{$i < n$ \textbf{and} curr $\ne$ tail} \label{algMH:consume}
+	\State i \attr i + curr.counter
+	\If{currSeq = \nullvalue}
+		\State currSeq \attr curr; minValue \attr curr.key
+	\EndIf
+	\State pred \attr curr; curr \attr curr.next[0]
+\EndWhile
+
+\If{$i = 0$}
+	\For{$i: \maxLvl \rightarrow 0$}
+		\State headPar[i], headSeq[i] \attr tail
+	\EndFor
+
+	\State lastSeq \attr headPar, minValue \attr \maxLvl
+	\State lock.release()
+	\State \Return \textbf{false}
+\EndIf
+
+\State lastSeq \attr pred
+
+\For{$i: \maxLvl \rightarrow 0$} \label{algMH:copyHead}
+	\State headSeq[i] \attr headPar[i]
+\EndFor
+
+\State find(headSeq, lastSeq + 1, preds, succs) \label{algMH:unlink}
+
+\For{$i: \maxLvl \rightarrow 0$}
+	\State preds[i].next[i] \attr tail
+	\State headPar.next[i] \attr succs[i]
+\EndFor
+
+\State lock.release()
+\State \Return \textbf{true}
+\end{algorithmic}
+\end{algorithm}
+
+Finally, the \texttt{SL::chopHead()} skiplist procedure is described in Alg.~\ref{Alg-ChopHead}. Note that all the \texttt{SL::find()} operations are executed outside the critical section. These operations identify the pointers that will change in order to relink the skiplist.
+
+\begin{algorithm}[!htb]
+\caption{SL::chopHead()}
+\label{Alg-ChopHead}
+\begin{algorithmic}[1]
+\If{currSeq = \nullvalue}
+	\State \Return \textbf{false}
+\EndIf
+
+\State find(headSeq, lastSeq.key + 1, preds, \nullvalue)
+\State find(headSeq, currSeq.key, \nullvalue, succs)
+
+\State lock.acquireW()
+
+\For{$i: \maxLvl \rightarrow 0$}
+	preds[i].next[i] \attr headPar.next[i]
+\EndFor
+
+\State lastSeq \attr headPar, currSeq \attr \nullvalue
+
+\For{$i: \maxLvl \rightarrow 0$}
+	\State headPar.next[i] \attr succs[i] \textbf{if} succs[i] $\ne$ tail
+\EndFor
+
+\State lock.release()
+
+\State \Return \textbf{true}
+\end{algorithmic}
+\end{algorithm}
