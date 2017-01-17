@@ -2,6 +2,10 @@
 
 \section{Evaluation}
 
+This section describes the result of both described algorithms. Although the   Newer priority queue implementation According to later published papers like \cite{braginsky_cbpq:_2016, } the performa
+
+
+
 \subsection{Single-Writer-Multi-Reader Lock Implementation}
 
 \subsubsection{Head-Moving Operations Overhead}
@@ -9,3 +13,15 @@
 \subsection{Hardware Transactional Memory Implementation}
 
 \subsubsection{Aborted Transaction Overhead}
+
+\subsection{Comparison with succeeding papers}
+
+C++ and compiled with a −O3 optimization level
+
+\cite{braginsky_cbpq:_2016, } way better (used original code of this paper)
+
+algorithm doesn't seem to scale much on multi socket machine, significant performance drop after useage of
+
+AMD Opteron (TM) 6272
+16-core processors, overall 64 threads. The machine was operated by Linux OS
+(Ubuntu 14.04)
