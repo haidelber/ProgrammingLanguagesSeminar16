@@ -2,12 +2,24 @@
 
 \section{Introduction}
 
-\improve{Explain priority queue}
+\unsure{Give context to the paper.. long intro.. skip some of the main part}
 
-\improve{Explain skiplist}
-
-\improve{Explain hardware transactional memory}
+A priority queue is a data structure for storing elements with associated keys. The keys represent priorities. Priority queues can be implemented in two forms: max-priority queues and min-priority queues. The latter one is the form that is considered in this paper.
+Typically a min-priority queue exports two operations: \texttt{add()}, for inserting an item into the priority queue, and \texttt{removeMin()} for removing the element with the minimum priority. \citeauthor{cormen_introduction_2009} describe other typical operations of a priority queue like: \texttt{minimum()} for retrieving without removing the minimum-priority-element, and \texttt{decreaseKey()} for decreasing the key of the given element to a given value.
+(Parallel) priority queues are often used for resource management in schedulers, for event simulations, or as data structures in graph-algorithms (e.g. Dijkstra's shortest path algorithm, or Prim's minimum spanning tree algorithm) \cite{cormen_introduction_2009}.
 
 \subsection{Prior Work}
 
+\improve{Explain elimination}
+
+\improve{Explain combining}
+
+\improve{Explain adaptive heuristic}
+
 \subsection{Contributions}
+
+\subsection{Basics}
+
+\change{Explain skiplist}
+
+\change{Explain hardware transactional memory}
