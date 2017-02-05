@@ -6,16 +6,16 @@ This section describes the result of the empiric evaluation of both described al
 
 \subsection{Single-Writer-Multi-Reader Lock Implementation}
 
-For conducting the expiriments a Sun SPARC T5240 was used, which consists of two UltraSPARC T2 Plus chips with 8 cores each, running at 1.165~GHz. Each core provides 8 hardware threads, for a total of 128 threads (64 per chip). Each run was repeated 5 times. The Media was used in the charts. Unfortunately the variance was not quantified in the paper. The throughput was measured in a timespan of 10 seconds. To get stable results the priority queue was seeded with 2000 initial elements. The decision wether to perform an \texttt{add()}-operation or an \texttt{removeMin()}-operation was done randomly with a probability of $p$ resulting in one operation and $1-p$ in the other operation.
+For conducting the expiriments a Sun SPARC T5240 was used, which consists of two UltraSPARC T2 Plus chips with 8 cores each, running at 1.165~GHz. Each core provides 8 hardware threads, for a total of 128 threads (64 per chip). Each run was repeated 5 times. The median was used in the charts. Unfortunately the variance was not quantified in the paper. The throughput was measured in a timespan of 10 seconds. To get stable results the priority queue was seeded with 2000 initial elements. The decision wether to perform an \texttt{add()}-operation or an \texttt{removeMin()}-operation was done randomly with a probability of $p$ resulting in one operation and $1-p$ in the other operation.
 
-\improve{Describe other papers}
-Flat combining skiplist (fcskiplist) \cite{hendler_flat_2010}
+The implementation was compared with 4 other priority queue implementations:
+\begin{itemize}
+	\item The flat combining skiplist (fcskiplist) and the flat combining pairing heap (fcpairheap) implementation are both based on the work of \citeauthor{hendler_flat_2010} and use coarse grained locking on a sequential datastructure with flat combining to implement a priority queue algorithm \cite{hendler_flat_2010}.
+	\item The lock free skiplist (lfskiplist) by \citeauthor{sundell_fast_2003} is based on a parallel skiplist and uses no atomic primitive operations to achieve its lock-freeness. \cite{sundell_fast_2003}.
+	\item The Lazy skiplist (lazyskiplist) by \citeauthor{lotan_skiplist-based_2000} is based on a parallel skiplist which uses a min-pointer and delete-flags to mark items as taken \cite{lotan_skiplist-based_2000}.
+\end{itemize}
 
-Flat combining pairing heap (fcpairheap) \cite{hendler_flat_2010}
 
-Lock free skiplist (lfskiplist) \cite{sundell_fast_2003}
-
-Lazy skiplist (lazyskiplist) \cite{lotan_skiplist-based_2000}
 
 \improve{Criticise why use this machine? seems quite old? why no more threads? why hide compiler details and os? why not all evaluate on the Intel machine?}
 
