@@ -8,16 +8,24 @@ This section describes the result of the empiric evaluation of both described al
 
 For conducting the expiriments a Sun SPARC T5240 was used, which consists of two UltraSPARC T2 Plus chips with 8 cores each, running at 1.165~GHz. Each core provides 8 hardware threads, for a total of 128 threads (64 per chip). Each run was repeated 5 times. The median was used in the charts. Unfortunately the variance was not quantified in the paper. The throughput was measured in a timespan of 10 seconds. To get stable results the priority queue was seeded with 2000 initial elements. The decision wether to perform an \texttt{add()}-operation or an \texttt{removeMin()}-operation was done randomly with a probability of $p$ resulting in one operation and $1-p$ in the other operation.
 
-The implementation was compared with 4 other priority queue implementations:
+The implementation (\textit{pqe}) was compared with 4 other priority queue implementations:
 \begin{itemize}
-	\item The flat combining skiplist (fcskiplist) and the flat combining pairing heap (fcpairheap) implementation are both based on the work of \citeauthor{hendler_flat_2010} and use coarse grained locking on a sequential datastructure with flat combining to implement a priority queue algorithm \cite{hendler_flat_2010}.
-	\item The lock free skiplist (lfskiplist) by \citeauthor{sundell_fast_2003} is based on a parallel skiplist and uses no atomic primitive operations to achieve its lock-freeness. \cite{sundell_fast_2003}.
-	\item The Lazy skiplist (lazyskiplist) by \citeauthor{lotan_skiplist-based_2000} is based on a parallel skiplist which uses a min-pointer and delete-flags to mark items as taken \cite{lotan_skiplist-based_2000}.
+	\item The flat combining skiplist (\textit{fcskiplist}) and the flat combining pairing heap (\textit{fcpairheap}) implementation are both based on the work of \citeauthor{hendler_flat_2010} and use coarse grained locking on a sequential datastructure with flat combining to implement a priority queue algorithm \cite{hendler_flat_2010}.
+	\item The lock free skiplist (\textit{lfskiplist}) by \citeauthor{sundell_fast_2003} is based on a parallel skiplist and uses no atomic operations to achieve its lock-freeness. \cite{sundell_fast_2003}.
+	\item The Lazy skiplist (\textit{lazyskiplist}) by \citeauthor{lotan_skiplist-based_2000} is based on a parallel skiplist which uses a min-pointer and delete-flags to mark items as taken \cite{lotan_skiplist-based_2000}.
 \end{itemize}
 
+The evaluation used different scenarios for evaluating the algorithms by varying the proportion of \texttt{add()} operations and \texttt{removeMin()} operations conversely. In Figure~\ref{fig:sparc_50} the results for 50~\% \texttt{add()} and 50~\% \texttt{removeMin()} are shown. The use of elimination suggests a good performance in this scenario. As seen in the diagram, the algorithm \textit{pqe} indeed performs very well. There is a steady increase in throughput up to the maximum thread-count ($60$) tested, but as the throughput seems to level out around 60 threads it can be assumed that the maximum throughput is reached around this number of threads, especially as the machine had to use the second processor for more than 64 threads. The other algorithms reach their peek-throughput between 4 and 8 threads. For low number of threads ($\le 8$) the algorithms is significantly outperformed by \textit{fcpairheap} because of the overhead for elimination and combining in \textit{pqe}.
+
+Figure~\ref{fig:sparc_80} shows the results for 80~\% \texttt{add()} and 20~\% \texttt{removeMin()}. The use of parallel \texttt{add()} operations still suggests a good performance in this scenario although elimination can't be used that often. Up until 8 threads the \textit{pqe} scales very well with a steady increase in throughput, but from 16 threads on the throughput drops again. The \textit{lazyskiplist} has a similar performance curve, with lower throughput for $\le 16$ threads but a similar decrease from 16 threads on. The curve of \textit{fcpairheap} with a almost static throughput over all tested threadcounts suggests a higher performance than \textit{pqe} and \textit{lazyskiplist} for higher threadcounts than the ones tested. The throughput of about zero for \textit{fcskiplist} seems odd.
 
 
-\improve{Criticise why use this machine? seems quite old? why no more threads? why hide compiler details and os? why not all evaluate on the Intel machine?}
+
+ and \ref{fig:sparc_20}
+
+\improve{Shortcomings of different algorithms, scenarios where they work good bad and why, what was done to overcome these}
+
+\improve{Criticise why use this machine? seems quite old? why no more threads? why hide compiler details and os? why not all evaluate on the Intel machine? Why these thread counts (increase of 1-2-3-8-8-8-8-8-8-6), use same scaling and especially on x axis a uniform scaling would be better as well}
 
 \begin{figure}[htb]
 	\centering
