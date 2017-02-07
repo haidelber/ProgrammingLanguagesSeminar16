@@ -73,6 +73,20 @@
 	file = {p463-herlihy.pdf:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\6SPAJP3C\\p463-herlihy.pdf:application/pdf}
 }
 
+@inproceedings{braginsky_cbpq:_2016,
+	title = {{CBPQ}: {High} {Performance} {Lock}-{Free} {Priority} {Queue}},
+	copyright = {©2016 Springer International Publishing Switzerland},
+	doi = {10.1007/978-3-319-43659-3_34},
+	abstract = {Priority queues are an important algorithmic component and are ubiquitous in systems and software. With the rapid deployment of parallel platforms, concurrent versions of priority queues are becoming increasingly important. In this paper, we present a novel concurrent lock-free linearizable algorithm for priority queues that scales significantly better than all known (lock-based or lock-free) priority queues. Our design employs several techniques to obtain its advantages including lock-free chunks, the use of the efficient fetch-and-increment atomic instruction, and elimination. Measurements under high contention demonstrate performance improvement by up to a factor of 1.8 over existing approaches.},
+	booktitle = {European {Conference} on {Parallel} {Processing} 2016: {Parallel} {Processing} ({EUROPAR})},
+	author = {Braginsky, Anastasia and Cohen, Nachshon and Petrank, Erez},
+	month = aug,
+	year = {2016},
+	keywords = {Algorithm Analysis and Problem Complexity, Computer System Implementation, Discrete Mathematics in Computer Science, Freezing, Lock-Free, Non-Blocking, Performance, Priority Queue, Programming Languages, Compilers, Interpreters, Programming Techniques, Special Purpose and Application-Based Systems},
+	pages = {460--474},
+	file = {Full Text PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\HWAUG2RP\\Braginsky et al. - 2016 - CBPQ High Performance Lock-Free Priority Queue.pdf:application/pdf;Snapshot:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\NZJXP2TP\\978-3-319-43659-3_34.html:text/html}
+}
+
 @book{cormen_introduction_2009,
 	address = {Cambridge},
 	edition = {3},
@@ -149,51 +163,15 @@
 	file = {p206-hendler.pdf:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\T3SD3AUH\\p206-hendler.pdf:application/pdf}
 }
 
-@inproceedings{alistarh_spraylist:_2015,
-	title = {The {SprayList}: {A} {Scalable} {Relaxed} {Priority} {Queue}},
-	doi = {10.1145/2688500.2688523},
-	abstract = {High-performance concurrent priority queues are essential for applications such as task scheduling and discrete event simulation. Unfortunately, even the best performing implementations do not scale past a number of threads in the single digits. This is because of the sequential bottleneck in accessing the elements at the head of the queue in order to perform a DeleteMin operation. In this paper, we present the SprayList, a scalable priority queue with relaxed ordering semantics. Starting from a non-blocking SkipList, the main innovation behind our design is that the DeleteMin operations avoid a sequential bottleneck by ``spraying'' themselves onto the head of the SkipList list in a coordinated fashion. The spraying is implemented using a carefully designed random walk, so that DeleteMin returns an element among the first O(p log{\textasciicircum}3 p) in the list, with high probability, where p is the number of threads. We prove that the running time of a DeleteMin operation is O(log{\textasciicircum}3 p), with high probability, independent of the size of the list. Our experiments show that the relaxed semantics allow the data structure to scale for high thread counts, comparable to a classic unordered SkipList. Furthermore, we observe that, for reasonably parallel workloads, the scalability benefits of relaxation considerably outweigh the additional work due to out-of-order execution.},
-	booktitle = {Proceedings of the 20th {ACM} {SIGPLAN} {Symposium} on {Principles} and {Practice} of {Parallel} {Programming} ({PPoPP})},
-	author = {Alistarh, Dan and Kopinsky, Justin and Li, Jerry and Shavit, Nir},
-	year = {2015},
-	keywords = {Concurrent data structures, parallel algorithms},
-	pages = {11--20},
-	file = {ACM Full Text PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\EIW6CDEV\\Alistarh et al. - 2015 - The SprayList A Scalable Relaxed Priority Queue.pdf:application/pdf}
-}
-
-@article{rihani_multiqueues:_2014,
-	title = {{MultiQueues}: {Simpler}, {Faster}, and {Better} {Relaxed} {Concurrent} {Priority} {Queues}},
-	url = {http://arxiv.org/abs/1411.1209},
-	abstract = {Priority queues with parallel access are an attractive data structure for applications like prioritized online scheduling, discrete event simulation, or branch-and-bound. However, a classical priority queue constitutes a severe bottleneck in this context, leading to very small throughput. Hence, there has been significant interest in concurrent priority queues with a somewhat relaxed semantics where deleted elements only need to be close to the minimum. In this paper we present a very simple approach based on multiple sequential priority queues. It turns out to outperform previous more complicated data structures while at the same time improving the quality of the returned elements.},
-	author = {Rihani, Hamza and Sanders, Peter and Dementiev, Roman},
-	month = nov,
-	year = {2014},
-	keywords = {Computer Science - Data Structures and Algorithms},
-	file = {arXiv\:1411.1209 PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\HNV39ER6\\Rihani et al. - 2014 - MultiQueues Simpler, Faster, and Better Relaxed C.pdf:application/pdf;arXiv.org Snapshot:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\8PCPE3SG\\1411.html:text/html}
-}
-
-@inproceedings{wimmer_lock-free_2015,
-	title = {The {Lock}-free k-{LSM} {Relaxed} {Priority} {Queue}},
-	doi = {10.1145/2688500.2688547},
-	abstract = {We present a new, concurrent, lock-free priority queue that relaxes the delete-min operation to allow deletion of any of the ρ smallest keys instead of only a minimal one, where ρ is a parameter that can be configured at runtime. It is built from a logarithmic number of sorted arrays, similar to log-structured merge-trees (LSM). For keys added and removed by the same thread the behavior is identical to a non-relaxed priority queue. We compare to state-of-the-art lock-free priority queues with both relaxed and non-relaxed semantics, showing high performance and good scalability of our approach.},
-	booktitle = {Proceedings of the 20th {ACM} {SIGPLAN} {Symposium} on {Principles} and {Practice} of {Parallel} {Programming} ({PPoPP})},
-	author = {Wimmer, Martin and Gruber, Jakob and Träff, Jesper Larsson and Tsigas, Philippas},
-	year = {2015},
-	keywords = {concurrent data structure relaxation, priority-queue, Shared Memory, Task-parallel programming},
-	pages = {277--278},
-	file = {ACM Full Text PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\2XWRDV9K\\Wimmer et al. - 2015 - The Lock-free k-LSM Relaxed Priority Queue.pdf:application/pdf}
-}
-
-@inproceedings{braginsky_cbpq:_2016,
-	title = {{CBPQ}: {High} {Performance} {Lock}-{Free} {Priority} {Queue}},
-	copyright = {©2016 Springer International Publishing Switzerland},
-	doi = {10.1007/978-3-319-43659-3_34},
-	abstract = {Priority queues are an important algorithmic component and are ubiquitous in systems and software. With the rapid deployment of parallel platforms, concurrent versions of priority queues are becoming increasingly important. In this paper, we present a novel concurrent lock-free linearizable algorithm for priority queues that scales significantly better than all known (lock-based or lock-free) priority queues. Our design employs several techniques to obtain its advantages including lock-free chunks, the use of the efficient fetch-and-increment atomic instruction, and elimination. Measurements under high contention demonstrate performance improvement by up to a factor of 1.8 over existing approaches.},
-	booktitle = {European {Conference} on {Parallel} {Processing} 2016: {Parallel} {Processing} ({EUROPAR})},
-	author = {Braginsky, Anastasia and Cohen, Nachshon and Petrank, Erez},
+@misc{calciu_adaptive_2014-1,
+	title = {The {Adaptive} {Priority} {Queue} with {Elimination} and {Combining}},
+	url = {http://arxiv.org/abs/1408.1021},
+	urldate = {2017-02-07},
+	journal = {arXiv.org},
+	author = {Calciu, Irina and Mendes, Hammurabi and Herlihy, Maurice},
 	month = aug,
-	year = {2016},
-	keywords = {Algorithm Analysis and Problem Complexity, Computer System Implementation, Discrete Mathematics in Computer Science, Freezing, Lock-Free, Non-Blocking, Performance, Priority Queue, Programming Languages, Compilers, Interpreters, Programming Techniques, Special Purpose and Application-Based Systems},
-	pages = {460--474},
-	file = {Full Text PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\HWAUG2RP\\Braginsky et al. - 2016 - CBPQ High Performance Lock-Free Priority Queue.pdf:application/pdf;Snapshot:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\NZJXP2TP\\978-3-319-43659-3_34.html:text/html}
+	year = {2014},
+	note = {[1408.1021] The Adaptive Priority Queue with Elimination and Combining},
+	keywords = {Computer Science - Distributed, Parallel, and Cluster Computing},
+	file = {arXiv\:1408.1021 PDF:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\XIQX4AC3\\Calciu et al. - 2014 - The Adaptive Priority Queue with Elimination and C.pdf:application/pdf;arXiv.org Snapshot:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\5G2EH3GU\\1408.html:text/html}
 }
