@@ -17,14 +17,6 @@ The implementation (\textit{pqe}) was compared with 4 other priority queue imple
 
 The evaluation used different scenarios for evaluating the algorithms by varying the proportion of \texttt{add()} operations and \texttt{removeMin()} operations conversely. In figure~\ref{fig:sparc_50} the results for 50~\% \texttt{add()} and 50~\% \texttt{removeMin()} are shown. The use of elimination suggests a good performance in this scenario. As seen in the diagram, the algorithm \textit{pqe} indeed performs very well. There is a steady increase in throughput up to the maximum thread-count ($60$) tested, but as the throughput seems to level out around 60 threads it can be assumed that the maximum throughput is reached around this number of threads, especially as the machine had to use the second processor for more than 64 threads. The other algorithms reach their peek-throughput between 4 and 8 threads. For low number of threads ($\le 8$) the algorithms is significantly outperformed by \textit{fcpairheap} because of the overhead for elimination and combining in \textit{pqe}.
 
-Figure~\ref{fig:sparc_80} shows the results for 80~\% \texttt{add()} and 20~\% \texttt{removeMin()}. The use of parallel \texttt{add()} operations still suggests a good performance in this scenario although elimination can't be used that often. Up until 8 threads the \textit{pqe} scales very well with a steady increase in throughput, but from 16 threads on the throughput drops again. The \textit{lazyskiplist} has a similar performance curve, with lower throughput for $\le 16$ threads but a similar decrease from 16 threads on. The curve of \textit{fcpairheap} with a almost static throughput over all tested threadcounts suggests a higher performance than \textit{pqe} and \textit{lazyskiplist} for higher threadcounts than the ones tested. The throughput of about zero for \textit{fcskiplist} seems odd.
-
-The results of the third scenario were not published in the paper by \citeauthor{calciu_adaptive_2014} but the sourcecode located on the \citefield{calciu_adaptive_2014-1}{journaltitle} website contained the results shown in figure~\ref{fig:sparc_20}. The design of the priority queue with sequential \texttt{removeMin()} operations suggests no good performance in this scenario. As seen in the diagram the \textit{pqe} scales quite good with increasing threadcount but has very little throughput in comparison with the other implementations. Other implementations show increasing throughput up to 8 threads, or 16 for \textit{fcpairheap}, but decrease in throughput for higher threadcounts.  Running with $\le 8$ threads \textit{pqe} shows the worst performance of the compared priority queue implementations. \textit{Fcpairheap} outperforms \textit{pqe} by 50~\% to 400~\%. The reason for increasing throughput between 32 and 48 threads needs further investigation in this scenario \cite{calciu_adaptive_2014-1}.
-
-\improve{Shortcomings of different algorithms, scenarios where they work good bad and why, what was done to overcome these}
-
-\improve{Criticise why use this machine? seems quite old? why no more threads? why hide compiler details and os? why not all evaluate on the Intel machine? Why these thread counts (increase of 1-2-3-8-8-8-8-8-8-6), use same scaling and especially on x axis a uniform scaling would be better as well}
-
 \begin{figure}[htb]
 	\centering
 	\begin{minipage}[b]{.495\textwidth}
@@ -48,7 +40,15 @@ The results of the third scenario were not published in the paper by \citeauthor
 	\end{minipage}
 \end{figure}
 
-\subsubsection{Head-Moving Operations Overhead}
+Figure~\ref{fig:sparc_80} shows the results for 80~\% \texttt{add()} and 20~\% \texttt{removeMin()}. The use of parallel \texttt{add()} operations still suggests a good performance in this scenario although elimination can't be used that often. Up until 8 threads the \textit{pqe} scales very well with a steady increase in throughput, but from 16 threads on the throughput drops again. The \textit{lazyskiplist} has a similar performance curve, with lower throughput for $\le 16$ threads but a similar decrease from 16 threads on. The curve of \textit{fcpairheap} with a almost static throughput over all tested threadcounts suggests a higher performance than \textit{pqe} and \textit{lazyskiplist} for higher threadcounts than the ones tested. The throughput of about zero for \textit{fcskiplist} seems odd.
+
+The results of the third scenario were not published in the paper by \citeauthor{calciu_adaptive_2014} but the sourcecode located on the \citefield{calciu_adaptive_2014-1}{journaltitle} website contained the results shown in figure~\ref{fig:sparc_20}. The design of the priority queue with sequential \texttt{removeMin()} operations suggests no good performance in this scenario. As seen in the diagram the \textit{pqe} scales quite good with increasing threadcount but has very little throughput in comparison with the other implementations. Other implementations show increasing throughput up to 8 threads, or 16 for \textit{fcpairheap}, but decrease in throughput for higher threadcounts.  Running with $\le 8$ threads \textit{pqe} shows the worst performance of the compared priority queue implementations. \textit{Fcpairheap} outperforms \textit{pqe} by 50~\% to 400~\%. The reason for increasing throughput between 32 and 48 threads is very unexpected and would need further investigation \cite{calciu_adaptive_2014-1}.
+
+In conclusion the \textit{pqe} implementation performs well in scenarios with balanced operation-proportion and in scenarios with more \texttt{add()} operations but has significant performance issues in scenarios with a high \texttt{removeMin()} operation-proportion. This evaluation shows that the implementation by \citeauthor{calciu_adaptive_2014} is no general purpose parallel priority queue and developers still have to evaluate their usecase to find the highest performing priority queue implementation.
+
+\subsubsection{Operation Analysis}
+
+Figure~\ref{fig:sparc_add} shows a diagram breaking down the \texttt{add()} operations optimizations in the different scenarios. While in the first scenario with 80~\% \texttt{add()} operations parallel \texttt{add()} operations account for more than 75~\% of all the \texttt{add()} operations, they only account for about 5~\% in the balanced scenario and none in the third scenario. Operations executed by the server play only a little role as the account for less than 5~\% in the first and second scenario and none in the third. The remaining fraction is executed via elimination.
 
 \begin{figure}[htb]
 	\centering
@@ -67,6 +67,8 @@ The results of the third scenario were not published in the paper by \citeauthor
 	\end{minipage}
 \end{figure}
 
+The \texttt{removeMin()} operations optimizations are shown in figure~\ref{fig:sparc_rem}. In the first scenario with 20~\% \texttt{removeMin()} operations elimination accounts for about 75~\% of all the operations executions. In the balanced scenario elimination accounts for about 90~\% of all the executions while in the last case it's only about 25~\% which explains the low throughput in this scenario as 75~\% of all the \texttt{removeMin()} operations which make up 60~\% of all the operations executed.
+
 \subsection{Hardware Transactional Memory Implementation}
 
 To evaluate the performance of the hardware transactional memory implementation a Intel Core i7-4770 based computer was used. The four cores run at 3.4~GHz and provide two hardware threads each.
@@ -81,7 +83,7 @@ RTM and optimizations enabled (-O3).
 
 \subsubsection{Aborted Transaction Overhead}
 
-\subsection{Comparison with algorithm by \citeauthor{braginsky_cbpq:_2016}}
+\subsection{Comparison with Algorithm by \citeauthor{braginsky_cbpq:_2016}}
 
 \citeauthor{braginsky_cbpq:_2016} claim in their paper that they implemented a high performing parallel priority queue. They used the original sourcecode by \citeauthor{calciu_adaptive_2014} for conducting their evaluation. The evaluation environment used differs from the one used by \citeauthor{calciu_adaptive_2014}, as they used a machine with 4 16-core AMD Opteron (TM) 6272 processors having a total of 64 threads. The algorithms were all written in C++ and compiled with a -O3 optimization level on Ubuntu~14.04 \cite{braginsky_cbpq:_2016}.
 
@@ -111,6 +113,13 @@ Figures~\ref{fig:cbpq_50}, \ref{fig:cbpq_80} and \ref{fig:cbpq_20} show the resu
 		\label{fig:cbpq_20}
 	\end{minipage}
 \end{figure}
+
+\subsection{Evaluation Remarks}
+While reading the original papers evaluation a few odd things came up. The Sun SPARC T5240 machine used for cunducting the experiments was introduced in 2008 while the paper was published in 2014. The Intel Xeon they This machine would support up to 128 threads although only up 64 were used in the experiments which means the whole second processer was never used.
+\improve{Distribution of priorities inserted?}
+\improve{Shortcomings of different algorithms, scenarios where they work good bad and why, what was done to overcome these}
+
+\improve{Criticise why use this machine? seems quite old? why no more threads? why hide compiler details and os? why not all evaluate on the Intel machine? Why these thread counts (increase of 1-2-3-8-8-8-8-8-8-6), use same scaling and especially on x axis a uniform scaling would be better as well}
 
 
 
