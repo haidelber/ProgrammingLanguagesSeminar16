@@ -6,7 +6,7 @@ This section describes the result of the empiric evaluation of both described al
 
 \subsection{Single-Writer-Multi-Reader Lock Implementation}
 
-For conducting the expiriments a Sun SPARC T5240 was used, which consists of two UltraSPARC T2 Plus chips with 8 cores each, running at 1.165~GHz. Each core provides 8 hardware threads, for a total of 128 threads (64 per chip). Each run was repeated 5 times. The median was used in the charts. Unfortunately the variance was not quantified in the paper. The throughput was measured in a timespan of 10 seconds. To get stable results the priority queue was seeded with 2000 initial elements. The decision wether to perform an \texttt{add()}-operation or an \texttt{removeMin()}-operation was done randomly with a probability of $p$ resulting in one operation and $1-p$ in the other operation.
+For conducting the experiments a Sun SPARC T5240 was used, which consists of two UltraSPARC T2 Plus chips with 8 cores each, running at 1.165~GHz. Each core provides 8 hardware threads, for a total of 128 threads (64 per chip). Each run was repeated 5 times. The median was used in the charts. Unfortunately the variance was not quantified in the paper. The throughput was measured in a timespan of 10 seconds. To get stable results the priority queue was seeded with 2000 initial elements. The decision whether to perform an \texttt{add()}-operation or an \texttt{removeMin()}-operation was done randomly with a probability of $p$ resulting in one operation and $1-p$ in the other operation.
 
 The implementation (\textit{pqe}) was compared with 4 other priority queue implementations:
 \begin{itemize}
@@ -48,7 +48,7 @@ In conclusion the \textit{pqe} implementation performs well in scenarios with ba
 
 \subsubsection{Operation Analysis}
 
-Figure~\ref{fig:sparc_add} shows a diagram breaking down the \texttt{add()} operations optimizations in the different scenarios. While in the first scenario with 80~\% \texttt{add()} operations parallel \texttt{add()} operations account for more than 75~\% of all the \texttt{add()} operations, they only account for about 5~\% in the balanced scenario and none in the third scenario. Operations executed by the server play only a little role as the account for less than 5~\% in the first and second scenario and none in the third. The remaining fraction is executed via elimination.
+Figure~\ref{fig:sparc_add} shows a diagram breaking down the \texttt{add()} operations optimizations in the different scenarios. While in the first scenario with 80~\% \texttt{add()} operations, parallel \texttt{add()} operations account for more than 75~\% of all the \texttt{add()} operations, while they only account for about 5~\% in the balanced scenario and none in the third scenario. Operations executed by the server play only a little role as the account for less than 5~\% in the first and second scenario and none in the third. The remaining fraction is executed via elimination.
 
 \begin{figure}[htb]
 	\centering
@@ -67,59 +67,79 @@ Figure~\ref{fig:sparc_add} shows a diagram breaking down the \texttt{add()} oper
 	\end{minipage}
 \end{figure}
 
-The \texttt{removeMin()} operations optimizations are shown in figure~\ref{fig:sparc_rem}. In the first scenario with 20~\% \texttt{removeMin()} operations elimination accounts for about 75~\% of all the operations executions. In the balanced scenario elimination accounts for about 90~\% of all the executions while in the last case it's only about 25~\% which explains the low throughput in this scenario as 75~\% of all the \texttt{removeMin()} operations which make up 60~\% of all the operations executed.
+The \texttt{removeMin()} operations optimizations are shown in figure~\ref{fig:sparc_rem}. In the first scenario with 20~\% \texttt{removeMin()} operations elimination accounts for about 75~\% of all the operations executions. In the balanced scenario elimination accounts for about 90~\% of all the executions while in the last case it is only about 25~\%, which explains the low throughput in this scenario, as 75~\% of all the \texttt{removeMin()} operations, which make up 60~\% of all the operations executed, are executed via the server thread.
 
 \subsection{Hardware Transactional Memory Implementation}
 
-To evaluate the performance of the hardware transactional memory implementation a Intel Core i7-4770 based computer was used. The four cores run at 3.4~GHz and provide two hardware threads each.
+To evaluate the performance of the hardware transactional memory implementation a Intel Core i7-4770 based computer was used. The four cores run at 3.4~GHz and provide two hardware threads each. The processor had hardware transactions enabled  using restricted transactional memory (RTM) and used all 8 possible hardware threads with hyperthreading enabled. Hyperthreading can influence the performance negatively because of the chache being shared between the 2 running hyperthreads on a core. The application was compiled using the GCC~4.8 compiler with support for RTM and optimizations enabled (-O3).
 
-, with hardware transactions enabled (restricted transactional memory - RTM),
-running at . There are 8GB of RAM shared across the machine and each core has a 32KB L1
-cache. Hyperthreading was enabled on our machine so we collected results using all 8 hardware threads.
-Hyperthreading causes resource sharing between the hyperthreads, including L1 cache sharing, when running
-with more than 4 threads, thus it can negatively impact results, especially for hardware transactions. We
-did not notice a hyperthreading effect in our experiments. We used the GCC 4.8 compiler with support for
-RTM and optimizations enabled (-O3).
+Figure~\ref{fig:tsx1} shows the evaluation results in a scenario with 80~\% \texttt{add()} and 20\%\texttt{removeMin()} operations for the lock-based implementation (\textit{pqe}) and the hardware-transaction based implementation (\textit{pqe-tsx}). As seen in the diagram the transaction base implementation starts off with the same throughput for $1+1$ threads. The throughput-increase is higher than that for \textit{que} resulting in a 20\% higher throughput for $1+2$ threads and a 40\% higher throughput for $1+7$ threads.
 
-\subsubsection{Aborted Transaction Overhead}
+The second scenario tested with equally many \texttt{add()} and \texttt{removeMin()} operations is shown in figure~\ref{fig:tsx2}. The results obtained in the experiments show almost no difference between the throuput of both implementations. This difference to the other scenario can be explained with the work breakdown shown in figure~\ref{fig:sparc_add}. The use of hardware transactional memory speeds up the parallel \texttt{add()} operations, not affecting the performance of other operations in the priority queue. As the first scenario uses about 75\% parallel \texttt{add()} operations (60\% of all operations) and the second uses only about 5\% (2.5\% of all operations), the throughput is hardly affected. 
+\begin{figure}[htb]
+	\centering
+	\begin{minipage}{.495\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{graphics/tsx-80-20.pdf}
+		\caption{Priority queue performance using a transaction-based dual skiplist with 80\% \texttt{add()} and 20\% \texttt{removeMin()} operations \cite{calciu_adaptive_2014}.}
+		\label{fig:tsx1}
+	\end{minipage}%
+	\hfill%
+	\begin{minipage}{.495\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{graphics/tsx-50-50.pdf}
+		\caption{Priority queue performance using a transaction-based dual skiplist with 50\% \texttt{add()}s and 50\% \texttt{removeMin()} operations \cite{calciu_adaptive_2014}.}
+		\label{fig:tsx2}
+	\end{minipage}
+\end{figure}
 
 \subsection{Comparison with Algorithm by \citeauthor{braginsky_cbpq:_2016}}
 
-\citeauthor{braginsky_cbpq:_2016} claim in their paper that they implemented a high performing parallel priority queue. They used the original sourcecode by \citeauthor{calciu_adaptive_2014} for conducting their evaluation. The evaluation environment used differs from the one used by \citeauthor{calciu_adaptive_2014}, as they used a machine with 4 16-core AMD Opteron (TM) 6272 processors having a total of 64 threads. The algorithms were all written in C++ and compiled with a -O3 optimization level on Ubuntu~14.04 \cite{braginsky_cbpq:_2016}.
+\citeauthor{braginsky_cbpq:_2016} claim in their paper that they implemented a high performing, lock free, parallel priority queue. They used the original sourcecode by \citeauthor{calciu_adaptive_2014} for conducting their experiments. The evaluation environment used differs from the one used by \citeauthor{calciu_adaptive_2014}, as they used a machine with 4 16-core AMD Opteron (TM) 6272 processors having a total of 64 threads. The algorithms were all written in C++ and compiled with a -O3 optimization level on Ubuntu~14.04 \cite{braginsky_cbpq:_2016}.
 
-Figures~\ref{fig:cbpq_50}, \ref{fig:cbpq_80} and \ref{fig:cbpq_20} show the results of the conducted experiments to compare the CBPQ algorithm by \citeauthor{braginsky_cbpq:_2016} to other high performing concurrent priority queu implementations at the time. The algorithm by \citeauthor{calciu_adaptive_2014} is abbreviated as APQ in the charts.
-
-\improve{Compare results in detail, focus on low threadcount and scalability especially threadcounts not tested in the original paper}
+Figures~\ref{fig:cbpq_50}, \ref{fig:cbpq_80} and \ref{fig:cbpq_20} show the throughput of the conducted experiments to compare the \textit{CBPQ} algorithm by \citeauthor{braginsky_cbpq:_2016} to other high performing concurrent priority queue implementations at the time:
+\begin{itemize}
+	\item The lock free priority queue (\textit{LJPQ}) by \citeauthor{linden_skiplist-based_2013} is  based on a skiplist and tries to reduce global memory updates to decrease contention in \texttt{removeMin()} operations \cite{linden_skiplist-based_2013}.
+	\item The lock free mound (\textit{Mound LF}) and fine grained locking mound (\textit{Mound LB}) by \citeauthor{liu_mounds:_2012} based on the mound datastructure. A mound is a randomized balanced tree
+	of sorted lists that allows concurrent \texttt{insert()} and \texttt{extractMin()} operations \cite{liu_mounds:_2012}.
+	\item The priority queue (\textit{APQ}) this paper is based on by \citeauthor{calciu_adaptive_2014} \cite{calciu_adaptive_2014}.
+\end{itemize}
 
 \begin{figure}[htb]
 	\centering
 	\begin{minipage}[b]{.7\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{graphics/cbpq_50add_50.png}
-		\caption{Priority queue performance with 50\% \texttt{add()}s, 50\% \texttt{removeMin()}s \cite{braginsky_cbpq:_2016}.}
+		\caption{Priority queue throughput in million instructions per second with 50\% \texttt{add()}s, 50\% \texttt{removeMin()}s \cite{braginsky_cbpq:_2016}.}
 		\label{fig:cbpq_50}
 	\end{minipage}
 	\hfill%
 	\begin{minipage}[b]{.495\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{graphics/cbpq_80add_20.png}
-		\caption{Priority queue performance with 80\% \texttt{add()}s, 20\% \texttt{removeMin()}s \cite{braginsky_cbpq:_2016}.}
+		\caption{Priority queue throughput in million instructions per second with 80\% \texttt{add()}s, 20\% \texttt{removeMin()}s \cite{braginsky_cbpq:_2016}.}
 		\label{fig:cbpq_80}
 	\end{minipage}
 	\begin{minipage}[b]{.495\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{graphics/cbpq_20add_80.png}
-		\caption{Priority queue performance with 20\% \texttt{add()}s, 80\% \texttt{removeMin()}s \cite{braginsky_cbpq:_2016}.}
+		\caption{Priority queue throughput in million instructions per second with 20\% \texttt{add()}s, 80\% \texttt{removeMin()}s \cite{braginsky_cbpq:_2016}.}
 		\label{fig:cbpq_20}
 	\end{minipage}
 \end{figure}
 
-\subsection{Evaluation Remarks}
-While reading the original papers evaluation a few odd things came up. The Sun SPARC T5240 machine used for cunducting the experiments was introduced in 2008 while the paper was published in 2014. The Intel Xeon they This machine would support up to 128 threads although only up 64 were used in the experiments which means the whole second processer was never used.
-\improve{Distribution of priorities inserted?}
-\improve{Shortcomings of different algorithms, scenarios where they work good bad and why, what was done to overcome these}
+The scalability of \textit{APQ} is much worse on the AMD platform than on the original Sun platform. Figure~\ref{fig:cbpq_50} shows that in the scenario with 50\% \texttt{add()} operations the algorithm by \citeauthor{calciu_adaptive_2014} scales well until 7 threads and drops significantly afterwards while other implementations scale better or at least achieve much higher throughput for the tested theadcounts. It remains to mention a good performance of \textit{APQ} for low threadcounts ($\le 7$) in comparison with the testes lock free priority queues except \textit{LJPQ}.
 
-\improve{Criticise why use this machine? seems quite old? why no more threads? why hide compiler details and os? why not all evaluate on the Intel machine? Why these thread counts (increase of 1-2-3-8-8-8-8-8-8-6), use same scaling and especially on x axis a uniform scaling would be better as well}
+The scenario with 80\% \texttt{add()} operations in figure~\ref{fig:cbpq_80} shows a very similar curve than the diagram in figure~\ref{fig:sparc_80}. \textit{APQ} is outperformed by every other implementation for $\le 15$ threads in this scenario, only the lock free mound implementation (\textit{Mound LF}) drops below \textit{APQ} for higher threadcounts.
+
+Figure~\ref{fig:cbpq_20} again shows again a poor performance of APQ in comparison with other implementations. The throughput development over the threadcount is on this platform quite different from the one shown in figure~\ref{fig:sparc_20}. The throughput increases until 5 threads but drops afterwards. It can be seen that on the AMD system there is no mysterious performance increase between 32 and 48 threads, as the throughput drops continuously. 
+
+\subsection{Evaluation Remarks}
+
+While reading the original paper, a few odd things came up. The Sun SPARC T5240 machine used for conducting the experiments was introduced in 2008 while the paper was published in 2014. The Intel CPU they used though was current model. Using such an old machine in spite of obviously having a current machine makes you wonder if it was perhaps used because the algorithm shows better results on this old machine. Additionally, the experiment was only conducted for up to 60 threads although the machine supports up to 128 threads. The experiment therefor never utilized the second processor.
+
+It would be interesting to know how the priorities used while adding elements were determined. The programming language and operating system was never mentioned, although the paper by \citeauthor{braginsky_cbpq:_2016} suggests the use of C++. A uniform scaling of the different diagrams' axis would increase readability and would ease the comparison between the different diagrams. Especially the scaling of the x-axis makes it hard to analyze the changes between two succeeding values.
+
 
 
 
