@@ -2,7 +2,7 @@
 
 \section{Evaluation}
 
-This section describes the result of the empiric evaluation of both described algorithms.
+This section describes the result of the empiric evaluation of both described algorithms as well as a comparison with a newer algorithm by \citeauthor{braginsky_cbpq:_2016}.
 
 \subsection{Single-Writer-Multi-Reader Lock Implementation}
 
@@ -136,7 +136,7 @@ Figure~\ref{fig:cbpq_20} again shows again a poor performance of APQ in comparis
 
 \subsection{Evaluation Remarks}
 
-While reading the original paper, a few odd things came up. The Sun SPARC T5240 machine used for conducting the experiments was introduced in 2008 while the paper was published in 2014. The Intel CPU they used though was current model. Using such an old machine in spite of obviously having a current machine makes you wonder if it was perhaps used because the algorithm shows better results on this old machine. Additionally, the experiment was only conducted for up to 60 threads although the machine supports up to 128 threads. The experiment therefor never utilized the second processor.
+While reading the original paper, a few odd things came up. The Sun SPARC T5240 machine used for conducting the experiments was introduced in 2008 while the paper was published in 2014. The Intel CPU they used was current model though. Using such an old machine in spite of obviously having a current machine makes you wonder if it was used because the algorithm shows better results on this old machine. Additionally, the experiment was only conducted for up to 60 threads although the machine supports up to 128 threads. The experiment therefore never utilized the second processor.
 
 It would be interesting to know how the priorities used while adding elements were determined. The programming language and operating system was never mentioned, although the paper by \citeauthor{braginsky_cbpq:_2016} suggests the use of C++. A uniform scaling of the different diagrams' axis would increase readability and would ease the comparison between the different diagrams. Especially the scaling of the x-axis makes it hard to analyze the changes between two succeeding values.
 

@@ -10,19 +10,15 @@ Typically a min-priority queue exports two operations: \texttt{add()}, for inser
 
 \subsection{Prior Work}
 
-The first parallel priority queues implementations were based on heaps and linked lists as it can be seen in the study by \citeauthor{ronngren_comparative_1997} \cite{ronngren_comparative_1997}, parallel priority queue algorithms based on skiplists were proposed later by \citeauthor{shavit_scalable_1999} \cite{shavit_scalable_1999}.
+The first parallel priority queues implementations were based on heaps and linked lists as it can be seen in the study by \citeauthor{ronngren_comparative_1997} \cite{ronngren_comparative_1997}, parallel priority queue algorithms based on skiplists were proposed later by \citeauthor{shavit_scalable_1999}. This first implementation deals with bounded range priority queues as found in operating system schedulers. Such queues provide a fixed range of priorities. The algorithm uses coarse-grained locking for synchronizing concurrent \texttt{removeMin()} operations and is based on the concurrent skiplist by \citeauthor{pugh_concurrent_1990} as described in \cite{pugh_concurrent_1990} \cite{shavit_scalable_1999}.
 
-\citeauthor{lotan_skiplist-based_2000} \cite{lotan_skiplist-based_2000} and \citeauthor{shavit_scalable_1999} \cite{shavit_scalable_1999}
-\improve{Write about skip list based prior work }
+\citeauthor{lotan_skiplist-based_2000} proposed a general purpose priority queue based on \citeauthor{pugh_concurrent_1990}'s concurrent skiplist. Each element has a flag to mark it as deleted. A delete pointer points to the current minimum priority element. Each \texttt{deleteMin()} operation traverses the skiplist until it finds a non marked element. The element is marked and afterwards deleted from the skiplist \cite{lotan_skiplist-based_2000}.
 
-\citeauthor{sundell_fast_2003} \cite{sundell_fast_2003}
-\improve{Write about lock free prior work}
+A lock-free priority queue based on a skiplist was introduced by \citeauthor{sundell_fast_2003}. They use different atomic primitive operations like Test-And-Set~(TAS), Fetch-And-Add~(FAA) and Compare-And-Swap~(CAS) to make their priority queue lock-free. For deletion, they use previously unused bits of the pointers in the skiplist to mark the node as deleted\cite{sundell_fast_2003}.
 
-\citeauthor{hendler_flat_2010} \cite{hendler_flat_2010}
-\improve{Write about flat combining to reduce contention}
+\citeauthor{shavit_elimination_1997} introduced the concept of elimination. This technique allows opposing operations to be coupled together by exchanging data via a small elimination datastructure. The distributed datastructure remains unchanged \cite{shavit_elimination_1997}.
 
-\citeauthor{hendler_scalable_2004} \cite{hendler_scalable_2004}
-\improve{Write about elimination}
+The paper by \citeauthor{hendler_flat_2010} introduced the concept of flat combining. This concept is the opposing strategy to use fine-grained locking to keep the critical region small, as it uses a global lock on the datastructure. All access requests are combined and executed all at once before releasing the lock. The benefit of this approach is the reduced synchronization overhead and the reduced traffic through cache invalidations \cite{hendler_flat_2010}.
 
 \subsection{Contributions}
 
