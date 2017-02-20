@@ -22,6 +22,18 @@ The paper by \citeauthor{hendler_flat_2010} introduced the concept of flat combi
 
 \subsection{Contributions}
 
+\citeauthor{calciu_adaptive_2014} developed a priority queue based on skiplists. They utilize the skiplists \enquote{capability for operation-batching and disjoint-access parallelism} \cite[407]{calciu_adaptive_2014}.
+
+The elimination algorithm allows \texttt{add()} operations with keys smaller than the current queues minimum to eliminate with \texttt{removeMin()} operations. The idea of aging operations also allows \texttt{add()} operations to participate in elimination(if the key is below a certain threshold), even if they are not allowed to eliminate yet.
+
+\texttt{RemoveMin()} operations are combined and delegated to a server thread. This thread is operating on the separate first part of the priority queue and serves every \texttt{removeMin()} and \texttt{add()} operation that is not eliminated.
+
+\texttt{Add()} operations with keys over the threshold mentioned above do not use elimination. They are inserted into the skiplist directly. As inserting elements sequentially would be ineffective the skiplist is split into two parts. The first part is only operated by the server thread. The second part is accessed by all threads in parallel.
+
+This design reduces contention through batched sequential \texttt{removeMin()} and \texttt{add()} (with small keys) operations, by using elimination, and by using parallel \texttt{add()} (with big keys) operations. 
+
+\citeauthor{calciu_adaptive_2014} also implemented the algorithm by using hardware transactional memory instead of locks. The goal of this approach is to further increase performance and to simplify the implementation \cite{calciu_adaptive_2014}.
+
 \subsection{Basics}
 
 \change{Explain skiplist}
