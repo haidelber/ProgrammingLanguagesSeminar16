@@ -2,10 +2,10 @@
 
 \section{Introduction}
 
-\unsure{Give context to the paper.. long intro.. skip some of the main part}
-
 A priority queue is a data structure for storing elements with associated keys. The keys represent priorities. Priority queues can be implemented in two forms: max-priority queues and min-priority queues. The latter one is the form that is considered in this paper.
+
 Typically a min-priority queue exports two operations: \texttt{add()}, for inserting an item into the priority queue, and \texttt{removeMin()} for removing the element with the minimum priority. \citeauthor{cormen_introduction_2009} describe other typical operations of a priority queue like: \texttt{minimum()} for retrieving without removing the minimum-priority-element, and \texttt{decreaseKey()} for decreasing the key of the given element to a given value.
+
 (Parallel) priority queues are often used for resource management in schedulers, for event simulations, or as data structures in graph-algorithms (e.g. Dijkstra's shortest path algorithm, or Prim's minimum spanning tree algorithm) \cite{cormen_introduction_2009}.
 
 \subsection{Prior Work}
@@ -34,8 +34,10 @@ This design reduces contention through batched sequential \texttt{removeMin()} a
 
 \citeauthor{calciu_adaptive_2014} also implemented the algorithm by using hardware transactional memory instead of locks. The goal of this approach is to further increase performance and to simplify the implementation \cite{calciu_adaptive_2014}.
 
-\subsection{Basics}
+\subsection{(Hardware) Transactional Memory}
 
-\change{Explain skiplist}
+\citeauthor{herlihy_transactional_1993} introduced the concept of transactional memory. Transactional memory allows lock-free implementations of datastructures without having to worry about synchronization. It \enquote{allows programmers to define customized read-modify-write operations that apply to multiple, independently-chosen} sections of memory \cite[289]{herlihy_transactional_1993}.
+Such transactional memory can be implemented in software or with the assistance of special hardware instructions \cite{herlihy_transactional_1993}.
 
-\change{Explain hardware transactional memory}
+Instructions as the Intel Transactional Synchronization Extensions (TSX) \cite{intel_corporation_transactional_2012} build ontop of the concept of transactional memory to provide hardware assisted transactions.
+Threads are allowed to execute speculatively in parallel on the shared memory. In case of a conflict only one thread succeeds and all the others have to rollback and retry their operations \cite{calciu_adaptive_2014}.
