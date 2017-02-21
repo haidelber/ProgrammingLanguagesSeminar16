@@ -2,24 +2,20 @@
 
 \section{Design}
 
-\unsure{Give context to the paper.. long intro.. skip some of the main part}
-
-\improve{Explain basic design}
-
-\improve{sequential, parallel part}
+The priority queue implementation by \citeauthor{calciu_adaptive_2014} exports the two necessary operations \texttt{add()} and \texttt{removeMin()}. It is based on a skiplist which is split into two parts as it can be seen in figure~\ref{fig:pqe}. The elements in the skiplist are buckets having associated keys accessible via \texttt{bucket.key}. \texttt{RemoveMin()} and \texttt{add()} operations with small keys are served by the sequential part, while \texttt{add()} operations with keys over a certain threshold are executed on the parallel part. The last element of the sequential part is referred to as \texttt{lastSeq}.
 
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.9\textwidth]{graphics/pqe.pdf}
-	\caption{\cite{calciu_adaptive_2014}}
+	\caption{Skiplist design \cite{calciu_adaptive_2014}.}
 	\label{fig:pqe}
 \end{figure}
 
-\paragraph{Add() Operation}
+\paragraph{Add()}
 
-\texttt{PQ:add()} asdf bla faseel
+A thread executing \texttt{add($v$)} on the priority queue decides whether to insert the element concurrently into the parallel part if $v > \texttt{lastseq.key}$. Otherwise, the element is put into the elimination array. If the element becomes eligible for elimination ($v < \texttt{minValue}$) the operation can eliminate with any \texttt{removeMin()} occurring, otherwise the operation will be executed by the server thread.
 
-\paragraph{RemoveMin() Operation}
+\paragraph{RemoveMin()}
 
 \subsection{Elimination and Combining}
 
@@ -29,7 +25,7 @@
 	\centering
 	\includegraphics[width=0.9\textwidth]{graphics/combining-state.pdf}
 	\caption{\cite{calciu_adaptive_2014}}
-	\label{fig:pqe}
+	\label{fig:combining-state}
 \end{figure}
 
 \subsubsection{Server Thread}
