@@ -25,7 +25,8 @@
 %CUSTOM PACKAGES
 
 \usepackage[backend=biber,style=ieee,mincitenames=1,maxcitenames=2]{biblatex}
-\usepackage{algorithm,algpseudocode}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{xargs}
 \usepackage[pdftex,dvipsnames]{xcolor}
 \usepackage[colorinlistoftodos,prependcaption]{todonotes}
@@ -64,10 +65,17 @@
 \setcounter{tocdepth}{3}
 \graphicspath{{graphics/}}
 
-\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
-\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
-\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
-\newcommandx{\improve}[2][1=]{\todo[#1]{#2}}
+%\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+%\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+%\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+%\newcommandx{\improve}[2][1=]{\todo[#1]{#2}}
+
+\newcommand{\Continue}{\textbf{continue}}
+\newcommand{\attr}{\ensuremath{\leftarrow} }
+\newcommand{\nullvalue}{\ensuremath{\bot}}
+\newcommand{\maxLvl}{\ensuremath{\mathrm{MaxLvl}}}
+\newcommand{\maxInt}{\ensuremath{\mathrm{MaxInt}}}
+\newcommand{\minInt}{\ensuremath{\mathrm{MinInt}}}
 
 \begin{document}
 
@@ -97,6 +105,8 @@
 
 \printbibliography
 
-\listoftodos[TODO and other issues]
-\change{REMOVE WHEN DONE}
+\newpage
+\appendix
+
+\input{chapters/appendix}
 \end{document}

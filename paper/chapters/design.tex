@@ -47,11 +47,11 @@ State transitions in the elimination array follow the state machine shown in fig
 	\label{fig:combining-state}
 \end{figure}
 
-\paragraph{Add()} A thread trying to add a \texttt{key} (where $\texttt{key} < \texttt{minValue}$) iterates through all slots of the elimination array to find a \texttt{REMREQ} opcode. If it finds one and additionally $\texttt{key} < \texttt{minValue}$, the tread uses \texttt{CAS} to write its value including a stamp into this slot. If multiple attempts fail, the thread instead writes its value into a slot marked as \texttt{EMPTY} and waits for another or the server thread to use the value and change the opcode to \texttt{TAKEN} \cite{calciu_adaptive_2014}.
+\paragraph{Add()} A thread trying to add a \texttt{key} (where $\texttt{key} < \texttt{minValue}$) iterates through all slots of the elimination array to find a \texttt{REMREQ} opcode. If it finds one and additionally $\texttt{key} < \texttt{minValue}$, the tread uses \texttt{CAS} to write its value including a stamp into this slot. If multiple attempts fail, the thread instead writes its value into a slot marked as \texttt{EMPTY} and waits for another or the server thread to use the value and change the opcode to \texttt{TAKEN}. The code for this operation can be found in the appendix in algorithm~\ref{alg:add} \cite{calciu_adaptive_2014}.
 
-\paragraph{RemoveMin()} A thread removing an element from the priority queue iterates through the elimination array until it finds a value or an \texttt{EMPTY} slot in the elimination array. If the stamp of this value is greater than zero, it is checked whether the value is smaller than \texttt{minValue}, otherwise a non positive stamp indicates a value to respond to another \texttt{REMREQ}. In the case of the value being a current minimum of the priority queue the thread uses \texttt{CAS} to replace the value with \texttt{TAKEN}. In the case of finding an empty slot first, a \texttt{REMREQ} with a unique stamp is posted to this slot. Then the thread waits for another thread to eliminate this remove request or the server thread to actually remove one element from the priority queue and post it to this slot of the elimination array \cite{calciu_adaptive_2014}.
+\paragraph{RemoveMin()} A thread removing an element from the priority queue iterates through the elimination array until it finds a value or an \texttt{EMPTY} slot in the elimination array. If the stamp of this value is greater than zero, it is checked whether the value is smaller than \texttt{minValue}, otherwise a non positive stamp indicates a value to respond to another \texttt{REMREQ}. In the case of the value being a current minimum of the priority queue the thread uses \texttt{CAS} to replace the value with \texttt{TAKEN}. In the case of finding an empty slot first, a \texttt{REMREQ} with a unique stamp is posted to this slot. Then the thread waits for another thread to eliminate this remove request or the server thread to actually remove one element from the priority queue and post it to this slot of the elimination array. The code for this operation can be found in the appendix in algorithm~\ref{alg:removeMin} \cite{calciu_adaptive_2014}.
 
-\paragraph{Server Thread} The dedicated server thread is implemented to ensure progress of all threads as not all remove requests and add operations eliminate. The server thread collects all add and remove requests and executes them sequentially on the sequential part of the skiplist. To keep the implementation linearizable the server thread first swaps the value or remove request with \texttt{INPROG}. After the insertion \texttt{TAKEN} is written to the according slot, for removes the value with stamp 0 is written to the slot \cite{calciu_adaptive_2014}.
+\paragraph{Server Thread} The dedicated server thread is implemented to ensure progress of all threads as not all remove requests and add operations eliminate. The server thread collects all add and remove requests and executes them sequentially on the sequential part of the skiplist. To keep the implementation linearizable the server thread first swaps the value or remove request with \texttt{INPROG}. After the insertion \texttt{TAKEN} is written to the according slot, for removes the value with stamp 0 is written to the slot. The code for this operation can be found in the appendix in algorithm~\ref{alg:Execute} \cite{calciu_adaptive_2014}.
 
 \subsection{Skiplist Operations}
 
@@ -59,18 +59,23 @@ The priority queue operations \texttt{add()} and \texttt{removeMin()} use the op
 
 \subsubsection{Sequential Part}
 
-The \texttt{addSeq()} and \texttt{removeSeq()} operations are just straight forward skiplist operations as they do not have to deals with any synchronization mechanism. The code for \texttt{removeSeq()} can be found in the appendix of the long version of the paper by  \citeauthor{calciu_adaptive_2014-1} \cite{calciu_adaptive_2014-1}.
+The \texttt{addSeq()} and \texttt{removeSeq()} operations are just straight forward skiplist operations as they do not have to deals with any synchronization mechanism. The code for \texttt{removeSeq()} is shown in algorithm~\ref{alg:RemoveSeq} \cite{calciu_adaptive_2014}.
 
 \subsubsection{Parallel Part addPar()}
 
-The \texttt{addPar()} operation relies on a Single-Writer-Multi-Reader lock to not manipulate any pointers while head-moving operation are running. To keep the critical section only as short as possible this operation first searches for the position to insert the element, then acquires the read lock, and checks a timestamp variable manipulated through locking. If the checked timestamp changed between the successful \texttt{find()} and the check within the critical section the operation has to retry from the start The detailed code can be found in the appendix of the paper by  \citeauthor{calciu_adaptive_2014-1} \cite{calciu_adaptive_2014-1}.
+The \texttt{addPar()} operation relies on a Single-Writer-Multi-Reader lock to not manipulate any pointers while head-moving operation are running. To keep the critical section as short as possible this operation first performs a \texttt{cleanFind()} as seen in algorithm~\ref{alg:CleanFind}. It searches for the position to insert the element, then acquires the read lock, and checks a timestamp variable manipulated through locking. If the checked timestamp changed between the successful \texttt{find()} and the check within the critical section the operation has to retry from the start. The code is shown in algorithm~\ref{alg:AddPar} \cite{calciu_adaptive_2014}.
 
 \subsubsection{Head-Moving Operations}
 
+The head-moving operations are responsible for moving the boundary between the sequential and the parallel part of the skiplist. At the beginning of such a operation a write-lock is acquired to keep other threads from adding elements in parallel while the boundary is manipulated.
+
 \paragraph{moveHead()}
+
+The \texttt{moveHead()} operation is used to extract a new sequential part from the skiplist if a remove request cannot be served because of an empty sequential part. At first the algorithm decides on how many elements should be moved to the sequential part. The number changes adaptive between $2^3$ and $2^{16}$. If more than $N$ insertions were performed in the sequential part since the last \texttt{moveHead()} was performed, the number of elements to move is doubled, if less than $M$ are inserted then the number is halved. The code is shown in algorithm~\ref{alg:MoveHead} \cite{calciu_adaptive_2014}.
 
 \paragraph{chopHead()}
 
+The \texttt{chopHead()} operation is called if no remove operations have been performed in a while. This operation relinks the sequential and the parallel part to form a fully parallel skiplist. The code is shown in algorithm~\ref{alg:ChopHead} \cite{calciu_adaptive_2014}.
 
 \subsection{Hardware Transactions}
 

@@ -1,0 +1,264 @@
+% !TEX root = ../paper.tex
+
+\section{Algorithms}
+
+All the following algorithms are taken directly from the long version of the paper by \citeauthor{calciu_adaptive_2014-1} \cite{calciu_adaptive_2014-1}.
+
+\begin{algorithm}[!htb]
+	\caption{PQ::add(inValue)}
+	\label{alg:add}
+	\begin{algorithmic}[1]
+		\If{inValue $\le$ skiplist.minValue}
+		\State rep \attr MAX\_ELIM\_MIN
+		\Else 
+		\If{skiplist.addPar(inValue)}
+		\State \Return $\mathbf{true}$
+		\EndIf
+		\State rep = MAX\_ELIM
+		\EndIf
+		
+		\While{rep $> 0$}
+		\State pos \attr $(id + 1) \% $ ELIM\_SIZE; (value, stamp) \attr 
+		elim[pos]
+		\If {value = REMREQ \textbf{and} (inValue $\le$ skiplist.minValue))}
+		\If{CAS(elim[pos], (value, stamp), (inValue, 0))}
+		\State \Return $\mathbf{true}$
+		\EndIf
+		\EndIf
+		\State rep \attr rep $- 1$; inc(pos)
+		\EndWhile
+		
+		\If{skiplist.addPar(inValue)}
+		\State \Return $\mathbf{true}$
+		\EndIf
+		
+		\While{$\mathbf{true}$}
+		\State (value, stamp) \attr elim[pos]
+		\If {value = REMREQ \textbf{and} (inValue $\le$ skiplist.minValue))}
+		\If{CAS(elim[pos], (value, stamp), (inValue, 0))}
+		\State \Return $\mathbf{true}$
+		\EndIf
+		\EndIf
+		\If {value = EMPTY}
+		\If{CAS(elim[pos], (value, stamp), (inValue, uniqueStamp()))}
+		\Repeat
+		\State (value, stamp) \attr elim[pos]
+		\Until{value = TAKEN}
+		\State elim[pos] \attr (EMPTY, 0); \Return $\mathbf{true}$
+		\EndIf    
+		\EndIf
+		\State inc(pos)
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[htb]
+	\caption{PQ::removeMin()}
+	\label{alg:removeMin}
+	\begin{algorithmic}[1]
+		\While{$\mathbf{true}$}
+		\State pos \attr $(id + 1) \% $ ELIM\_SIZE; (value, stamp) \attr 
+		elim[pos]
+		\If {IsValue(value) \textbf{and} (stamp $> 0$) \textbf{and} (value 
+		$\le$ skiplist.minValue))}
+		\If{CAS(elim[pos], (value, stamp), (TAKEN, 0))}
+		\State \Return value
+		\EndIf
+		\EndIf
+		\If {value = EMPTY}
+		\If{CAS(elim[pos], (value, stamp), (REMREQ, uniqueStamp()))}
+		\Repeat
+		\State (value, stamp) \attr elim[pos]
+		\Until{value $\ne$ REMREQ \textbf{and} value $\ne$ INPROG}
+		\State elim[pos] \attr (EMPTY, 0); \Return value
+		\EndIf    
+		\EndIf
+		\State inc(pos)
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}[htb]
+	\caption{Server::execute()}
+	\label{alg:Execute}
+	\begin{algorithmic}[1]
+		\While{$\mathbf{true}$}
+		\For{$i$: 1 $\rightarrow$ ELIM\_SIZE}
+		\State (value, stamp) \attr elim[i]
+		\If{value = REMREQ}
+		\If{CAS(elim[i], (value, stamp), (INPROG, 0))}
+		\State min \attr skiplist.removeSeq(); elim[i] \attr (min, 0)
+		\EndIf
+		\EndIf
+		\If {IsValue(value) \textbf{and} (stamp $> 0$)}
+		\If{CAS(elim[i], (value, stamp), (INPROG, 0))}
+		\State skiplist.addSeq(value); elim[i] \attr (TAKEN, 0)
+		\EndIf    
+		\EndIf
+		\EndFor
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[!htb]
+	\caption{SL::removeSeq()}
+	\label{alg:RemoveSeq}
+	\begin{algorithmic}[1]
+		\If{minValue $=$ \maxInt}
+		\State \Return \maxInt
+		\EndIf
+		\If{currSeq $=$ \nullvalue}
+		\State moveHead()
+		\EndIf
+		\State key \attr currSeq.key
+		\State currSeq.counter \attr currSeq.counter - 1
+		\If{currSeq.counter $= 0$}
+		\While{currSeq $\ne$ lastSeq}
+		\State currSeq \attr currSeq.next[0]
+		\If{currSeq.counter $> 0$}
+		\State minValue = currSeq.key
+		\State \Return key
+		\EndIf
+		\EndWhile
+		\State moveHead()
+		\EndIf
+		\State \Return key
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[!htb]
+	\caption{cleanFind($v$, preds, succs)}
+	\label{alg:CleanFind}
+	\begin{algorithmic}[1]
+		\State $t$ \attr lock.timestamp \label{algFLT:checkstamp1}
+		\State $b$ \attr find(headPar, $v$, preds, succs)
+		\State lock.acquireR()
+		\If{$t$ $<$ lock.timestamp} \label{algFLT:checkstamp2}
+		\State lock.release()
+		\State \Return $(\nullvalue, \mathbf{false})$
+		\EndIf
+		\State \Return $(b, \mathbf{true})$
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[!htb]
+	\caption{SL::addPar($v$)}
+	\label{alg:AddPar}
+	\begin{algorithmic}[1]
+		\If{$v$ $\le$ lastSeq.key}
+		\State \Return \textbf{false}
+		\EndIf
+		\State $(b,r)$ \attr cleanFind($v$, preds, succs) \label{algAddPar:find}
+		\If{$r$ = \textbf{false}}
+		\State \textbf{restart} at line~\ref{algAddPar:find}
+		\EndIf
+		\If{$b \ne \nullvalue$} \label{algAddPar:incblock}
+		\State Atomically increment $b$.counter
+		\State lock.release()
+		\State \Return \textbf{true}
+		\EndIf
+		\State $b$ \attr newNode($v$)
+		\For{$i$: 1 $\rightarrow$ $b$.topLevel}
+		\State $b$.next[i] \attr succs[i]
+		\EndFor
+		\If{\textbf{not} CAS(preds[0].next[0]: succs[0] $\rightarrow$ $b$)}
+		\State lock.release()
+		\State \textbf{restart} at line~\ref{algAddPar:find}
+		\EndIf
+		\Repeat
+		\State $m$ \attr minValue
+		\Until{$m \le v$ \textbf{or} CAS(minValue: $m \rightarrow v$)}
+		\For{$i$: 1 $\rightarrow$ $b$.topLevel}
+		\State $b$.next[i] \attr succs[i]
+		\If{CAS(preds[i].next[i]: succs[i] $\rightarrow$ $b$)}
+		\State \Continue
+		\EndIf
+		\State lock.release()
+		\Repeat
+		\State $(b,r)$ \attr cleanFind($v$, preds, succs)
+		\Until{$r = \mathbf{true}$}
+		\If{$b = \nullvalue$}
+		\State lock.release()
+		\State \Return \textbf{true}
+		\EndIf
+		\EndFor
+		\State \Return \textbf{true}
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[!htb]
+	\caption{SL::moveHead()}
+	\label{alg:MoveHead}
+	\begin{algorithmic}[1]
+		\State $n$ is determined dynamically (see text)
+		\State lock.acquireW()
+		\State currSeq \attr \nullvalue
+		
+		\State pred \attr headPar
+		\State curr \attr headPar.next[0]
+		\State $i = 0$
+		\While{$i < n$ \textbf{and} curr $\ne$ tail} \label{algMH:consume}
+		\State i \attr i + curr.counter
+		\If{currSeq = \nullvalue}
+		\State currSeq \attr curr; minValue \attr curr.key
+		\EndIf
+		\State pred \attr curr; curr \attr curr.next[0]
+		\EndWhile
+		
+		\If{$i = 0$}
+		\For{$i: \maxLvl \rightarrow 0$}
+		\State headPar[i], headSeq[i] \attr tail
+		\EndFor
+		
+		\State lastSeq \attr headPar, minValue \attr \maxLvl
+		\State lock.release()
+		\State \Return \textbf{false}
+		\EndIf
+		
+		\State lastSeq \attr pred
+		
+		\For{$i: \maxLvl \rightarrow 0$} \label{algMH:copyHead}
+		\State headSeq[i] \attr headPar[i]
+		\EndFor
+		
+		\State find(headSeq, lastSeq + 1, preds, succs) \label{algMH:unlink}
+		
+		\For{$i: \maxLvl \rightarrow 0$}
+		\State preds[i].next[i] \attr tail
+		\State headPar.next[i] \attr succs[i]
+		\EndFor
+		
+		\State lock.release()
+		\State \Return \textbf{true}
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[!htb]
+	\caption{SL::chopHead()}
+	\label{alg:ChopHead}
+	\begin{algorithmic}[1]
+		\If{currSeq = \nullvalue}
+		\State \Return \textbf{false}
+		\EndIf
+		
+		\State find(headSeq, lastSeq.key + 1, preds, \nullvalue)
+		\State find(headSeq, currSeq.key, \nullvalue, succs)
+		
+		\State lock.acquireW()
+		
+		\For{$i: \maxLvl \rightarrow 0$}
+		preds[i].next[i] \attr headPar.next[i]
+		\EndFor
+		
+		\State lastSeq \attr headPar, currSeq \attr \nullvalue
+		
+		\For{$i: \maxLvl \rightarrow 0$}
+		\State headPar.next[i] \attr succs[i] \textbf{if} succs[i] $\ne$ tail
+		\EndFor
+		
+		\State lock.release()
+		
+		\State \Return \textbf{true}
+	\end{algorithmic}
+\end{algorithm}
