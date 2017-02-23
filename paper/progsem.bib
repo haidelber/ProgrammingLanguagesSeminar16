@@ -61,7 +61,6 @@
 @article{herlihy_linearizability:_1990,
 	title = {Linearizability: {A} {Correctness} {Condition} for {Concurrent} {Objects}},
 	volume = {12},
-	shorttitle = {Linearizability},
 	doi = {10.1145/78969.78972},
 	abstract = {A concurrent object is a data object shared by concurrent processes. Linearizability is a correctness condition for concurrent objects that exploits the semantics of abstract data types. It permits a high degree of concurrency, yet it permits programmers to specify and reason about concurrent objects using known techniques from the sequential domain. Linearizability provides the illusion that each operation applied by concurrent processes takes effect instantaneously at some point between its invocation and its response, implying that the meaning of a concurrent object's operations can be given by pre- and post-conditions. This paper defines linearizability, compares it to other correctness conditions, presents and demonstrates a method for proving the correctness of implementations, and shows how to reason about concurrent objects, given they are linearizable.},
 	number = {3},
@@ -78,7 +77,7 @@
 	copyright = {©2016 Springer International Publishing Switzerland},
 	doi = {10.1007/978-3-319-43659-3_34},
 	abstract = {Priority queues are an important algorithmic component and are ubiquitous in systems and software. With the rapid deployment of parallel platforms, concurrent versions of priority queues are becoming increasingly important. In this paper, we present a novel concurrent lock-free linearizable algorithm for priority queues that scales significantly better than all known (lock-based or lock-free) priority queues. Our design employs several techniques to obtain its advantages including lock-free chunks, the use of the efficient fetch-and-increment atomic instruction, and elimination. Measurements under high contention demonstrate performance improvement by up to a factor of 1.8 over existing approaches.},
-	booktitle = {European {Conference} on {Parallel} {Processing} 2016: {Parallel} {Processing} ({EUROPAR})},
+	booktitle = {Proceedings of the 22nd {International} {European} {Conference} on {Parallel} and {Distributed} {Computing} ({EUROPAR})},
 	author = {Braginsky, Anastasia and Cohen, Nachshon and Petrank, Erez},
 	month = aug,
 	year = {2016},
@@ -250,4 +249,17 @@
 	month = feb,
 	year = {2012},
 	file = {Transactional Synchronization in Haswell | Intel® Software:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\HJA8TZAV\\transactional-synchronization-in-haswell.html:text/html}
+}
+
+@inproceedings{dechev_understanding_2010,
+	title = {Understanding and {Effectively} {Preventing} the {ABA} {Problem} in {Descriptor}-{Based} {Lock}-{Free} {Designs}},
+	doi = {10.1109/ISORC.2010.10},
+	abstract = {An increasing number of modern real-time systems and the nowadays ubiquitous multicore architectures demand the application of programming techniques for reliable and efficient concurrent synchronization. Some recently developed Compare-And-Swap (CAS) based nonblocking techniques hold the promise of delivering practical and safer concurrency. The ABA problem is a fundamental problem to many CAS-based designs. Its significance has increased with the suggested use of CAS as a core atomic primitive for the implementation of portable lock-free algorithms. The ABA problem's occurrence is due to the intricate and complex interactions of the application's concurrent operations and, if not remedied, ABA can significantly corrupt the semantics of a nonblocking algorithm. The current state of the art leaves the elimination of the ABA hazards to the ingenuity of the software designer. In this work we provide the first systematic and detailed analysis of the ABA problem in lock-free Descriptor-based designs. We study the semantics of Descriptor-based lock-free data structures and propose a classification of their operations that helps us better understand the ABA problem and subsequently derive an effective ABA prevention scheme. Our ABA prevention approach outperforms by a large factor the use of the alternative CAS-based ABA prevention schemes. It offers speeds comparable to the use of the architecture-specific CAS2 instruction used for version counting. We demonstrate our ABA prevention scheme by integrating it into an advanced nonblocking data structure, a lock-free dynamically resizable array.},
+	booktitle = {Proceedings of the 13th {IEEE} {International} {Symposium} on {Object}/{Component}/{Service}-{Oriented} {Real}-{Time} {Distributed} {Computing} ({ISORC})},
+	author = {Dechev, D. and Pirkelbauer, P. and Stroustrup, B.},
+	month = may,
+	year = {2010},
+	keywords = {ABA prevention scheme, ABA problem, advanced nonblocking data structure, Application software, compare-and-swap based nonblocking techniques, Computer science, concurrency control, Concurrent computing, concurrent synchronization, Content addressable storage, core atomic primitive, Data structures, descriptor-based lock-free data structures, descriptor-based lock-free designs, Distributed computing, Hazards, Libraries, lock-free dynamically resizable array, lock-free programming techniques, multiprocessing systems, nonblocking synchronization, operation classification, pattern classification, portable lock-free algorithms, Programming Techniques, real-time system, Real time systems, real-time systems, Software design, ubiquitous computing, ubiquitous multicore architectures},
+	pages = {185--192},
+	file = {IEEE Xplore Abstract Record:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\FJZ5FPCD\\5479555.html:text/html;isorc2010.pdf:C\:\\Users\\stefa\\AppData\\Roaming\\Zotero\\Zotero\\Profiles\\eya1ases.default\\zotero\\storage\\D43IQQXC\\isorc2010.pdf:application/pdf}
 }

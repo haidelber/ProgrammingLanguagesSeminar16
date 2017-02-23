@@ -24,6 +24,7 @@ operations try to eliminate with an \texttt{add()} operation from the eliminatio
 Elimination allows operations to cancel each other out without accessing the shared datastructure. This reduces contention on the priority queue itself and therefore increases parallelism and scalability. The priority queue allows \texttt{removeMin()} operations to eliminate \texttt{add()} operations with keys smaller than \texttt{minValue} and vice versa. An array with a fixed size is used to store data the operations need to exchange \cite{calciu_adaptive_2014}.
 
 \subsubsection{Elimination Array}
+\label{sec:eliminationArray}
 
 64 bit array slots are used to store a 32-bit value or one of the predefined opcodes as well as a unique stamp for every operation. Valid opcodes are: \texttt{EMPTY}, \texttt{REMREQ}, \texttt{INPROG}, and \texttt{TAKEN}. The values corresponding to these opcodes are not allowed to be used as values in the priority queue. These opcodes have following meaning:
 
@@ -69,11 +70,11 @@ The \texttt{addPar()} operation relies on a Single-Writer-Multi-Reader lock to n
 
 The head-moving operations are responsible for moving the boundary between the sequential and the parallel part of the skiplist. At the beginning of such a operation a write-lock is acquired to keep other threads from adding elements in parallel while the boundary is manipulated.
 
-\paragraph{moveHead()}
+\paragraph{MoveHead()}
 
 The \texttt{moveHead()} operation is used to extract a new sequential part from the skiplist if a remove request cannot be served because of an empty sequential part. At first the algorithm decides on how many elements should be moved to the sequential part. The number changes adaptive between $2^3$ and $2^{16}$. If more than $N$ insertions were performed in the sequential part since the last \texttt{moveHead()} was performed, the number of elements to move is doubled, if less than $M$ are inserted then the number is halved. The code is shown in algorithm~\ref{alg:MoveHead} \cite{calciu_adaptive_2014}.
 
-\paragraph{chopHead()}
+\paragraph{ChopHead()}
 
 The \texttt{chopHead()} operation is called if no remove operations have been performed in a while. This operation relinks the sequential and the parallel part to form a fully parallel skiplist. The code is shown in algorithm~\ref{alg:ChopHead} \cite{calciu_adaptive_2014}.
 
