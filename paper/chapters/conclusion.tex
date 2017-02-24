@@ -2,4 +2,8 @@
 
 \section{Conclusion}
 
-\todo{We summarize the contribution of the papers and this seminar paper.}
+This paper summarizes the paper by \citeauthor{calciu_adaptive_2014}. It enriches the information given by the base paper with an extended evaluation containing results from a succeeding paper by \citeauthor{braginsky_cbpq:_2016}, some additional prior papers, an explanation of transactional memory, fine-grained structuring, and some remarks on the evaluation.
+
+The paper by \citeauthor{calciu_adaptive_2014} describes a linearizable, skiplist-based priority queue. To increase the scalability the authors split the skiplist into a sequential part, allowing batched removals by a server thread, and a parallel part, allowing concurrent insertions. The use of elimination reduces the number of updates to the skiplist, by bypassing the actual data structure for allowed operations.
+
+A second implementation described by \citeauthor{calciu_adaptive_2014} modifies the algorithm to use hardware transactions instead of a Single-Writer-Multi-Reader lock for synchronizing the head-moving operations and concurrent \texttt{add()} operations.

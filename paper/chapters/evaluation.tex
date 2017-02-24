@@ -7,7 +7,7 @@ This section describes the result of the empiric evaluation of both described al
 \subsection{Single-Writer-Multi-Reader Lock Implementation}
 
 For conducting the experiments a Sun SPARC T5240 was used, which consists of two UltraSPARC T2 Plus chips with 8 cores each, running at 1.165~GHz. Each core provides 8 hardware threads, for a total of 128 threads (64 per chip). Each run was repeated 5 times. The median was used in the charts. Unfortunately the variance was not quantified in the paper. The throughput was measured in a timespan of 10 seconds. To get stable results the priority queue was seeded with 2000 initial elements. The decision whether to perform an \texttt{add()}-operation or an \texttt{removeMin()}-operation was done randomly with a probability of $p$ resulting in one operation and $1-p$ in the other operation.
-
+\newpage
 The implementation (\textit{pqe}) was compared with 4 other priority queue implementations:
 \begin{itemize}
 	\item The flat combining skiplist (\textit{fcskiplist}) and the flat combining pairing heap (\textit{fcpairheap}) implementation are both based on the work of \citeauthor{hendler_flat_2010} and use coarse grained locking on a sequential datastructure with flat combining to implement a priority queue algorithm \cite{hendler_flat_2010}.
@@ -97,6 +97,7 @@ The second scenario tested with equally many \texttt{add()} and \texttt{removeMi
 
 \citeauthor{braginsky_cbpq:_2016} claim in their paper that they implemented a high performing, lock free, parallel priority queue. They used the original sourcecode by \citeauthor{calciu_adaptive_2014} for conducting their experiments. The evaluation environment used differs from the one used by \citeauthor{calciu_adaptive_2014}, as they used a machine with 4 16-core AMD Opteron (TM) 6272 processors having a total of 64 threads. The algorithms were all written in C++ and compiled with a -O3 optimization level on Ubuntu~14.04 \cite{braginsky_cbpq:_2016}.
 
+\newpage
 Figures~\ref{fig:cbpq_50}, \ref{fig:cbpq_80} and \ref{fig:cbpq_20} show the throughput of the conducted experiments to compare the \textit{CBPQ} algorithm by \citeauthor{braginsky_cbpq:_2016} to other high performing concurrent priority queue implementations at the time:
 \begin{itemize}
 	\item The lock free priority queue (\textit{LJPQ}) by \citeauthor{linden_skiplist-based_2013} is  based on a skiplist and tries to reduce global memory updates to decrease contention in \texttt{removeMin()} operations \cite{linden_skiplist-based_2013}.
